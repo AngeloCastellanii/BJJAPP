@@ -24,7 +24,7 @@ export function QuickActions() {
           <Link
             key={action.href}
             href={action.href}
-            className="flex min-w-19 flex-col items-center gap-2 rounded-2xl bg-surface px-3 py-3 shadow-[var(--shadow-sm)] transition hover:-translate-y-0.5 hover:shadow-[var(--shadow-md)]"
+            className="flex min-w-19 flex-col items-center gap-2 rounded-2xl bg-surface px-3 py-3 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
           >
             <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-surface-2 text-foreground">
               <Icon className="h-5 w-5" strokeWidth={1.75} />

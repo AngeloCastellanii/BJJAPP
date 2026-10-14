@@ -57,11 +57,11 @@ export function AppNav() {
                 className={cn(
                   "flex h-11 items-center gap-3 rounded-2xl px-3 text-sm font-medium transition",
                   active
-                    ? "bg-accent text-accent-fg shadow-[var(--shadow-sm)]"
+                    ? "bg-accent text-accent-fg shadow-sm"
                     : "text-muted hover:bg-surface-2 hover:text-foreground",
                 )}
               >
-                <Icon className="h-[18px] w-[18px]" strokeWidth={active ? 2.25 : 1.75} />
+                <Icon className="size-4.5" strokeWidth={active ? 2.25 : 1.75} />
                 {item.label === "Gente"
                   ? "Descubrir"
                   : item.label === "Mat"
@@ -101,7 +101,7 @@ export function AppNav() {
       </aside>
 
       <nav className="fixed inset-x-0 bottom-0 z-40 px-3 pb-safe md:hidden">
-        <div className="mx-auto mb-2 max-w-xl rounded-[1.75rem] border border-border/80 bg-surface/90 px-2 py-2 shadow-[var(--shadow-md)] backdrop-blur-xl">
+        <div className="mx-auto mb-2 max-w-xl rounded-4xl border border-border/80 bg-surface/90 px-2 py-2 shadow-md backdrop-blur-xl">
           <ul className="grid grid-cols-5">
             {items.map((item) => {
               const active =

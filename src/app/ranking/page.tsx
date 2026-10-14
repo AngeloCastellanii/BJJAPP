@@ -47,7 +47,7 @@ export default async function RankingPage({
         description="Wins por periodo y mejor atleta de academia."
       />
 
-      <div className="mb-5 inline-flex rounded-2xl bg-surface p-1 shadow-[var(--shadow-sm)]">
+      <div className="mb-5 inline-flex rounded-2xl bg-surface p-1 shadow-sm">
         {tabs.map((tab) => (
           <Link
             key={tab.id}
