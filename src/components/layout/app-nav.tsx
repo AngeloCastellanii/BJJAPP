@@ -27,6 +27,8 @@ const items = [
 const more = [
   { href: "/ranking", label: "Ranking", icon: Trophy },
   { href: "/peleas", label: "Peleas", icon: Swords },
+  { href: "/competencias", label: "Competencias", icon: Trophy },
+  { href: "/escuelas", label: "Escuelas", icon: Users },
   { href: "/open-mats", label: "Open mats", icon: CalendarDays },
   { href: "/eventos", label: "Eventos", icon: CalendarDays },
   { href: "/partners", label: "Partners", icon: Users },
@@ -72,7 +74,7 @@ export function AppNav() {
                 className={cn(
                   "flex h-11 items-center gap-3 rounded-2xl px-3 text-sm font-medium transition",
                   active
-                    ? "bg-accent text-accent-fg shadow-soft"
+                    ? "bg-surface-2 text-foreground"
                     : "text-muted hover:bg-surface-2 hover:text-foreground",
                 )}
               >
@@ -117,7 +119,7 @@ export function AppNav() {
       ) : null}
 
       {moreOpen ? (
-        <div className="fixed inset-x-0 bottom-[5.5rem] z-50 px-3 md:hidden">
+        <div className="fixed inset-x-0 bottom -[5.5rem] z-50 px-3 md:hidden">
           <div className="mx-auto max-w-xl rounded-4xl border border-border/80 bg-surface p-3 shadow-lift">
             <div className="mb-2 flex items-center justify-between px-2">
               <p className="text-sm font-medium">Más módulos</p>
@@ -142,7 +144,7 @@ export function AppNav() {
                     className={cn(
                       "flex items-center gap-2 rounded-2xl px-3 py-3 text-sm transition",
                       active
-                        ? "bg-accent text-accent-fg"
+                        ? "bg-surface-2 text-foreground"
                         : "text-foreground hover:bg-surface-2",
                     )}
                   >

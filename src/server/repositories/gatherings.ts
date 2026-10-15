@@ -1,5 +1,6 @@
 "use server";
 
+import { canOrganizeType, gatheringPath } from "@/lib/roles";
 import type {
   Gathering,
   GatheringParticipant,
@@ -8,6 +9,8 @@ import type {
 } from "@/lib/types";
 import { getStore, uid } from "../mock/store";
 import { getAcademy, getProfile, requireSession, withAcademy } from "./helpers";
+
+export { gatheringPath };
 
 function enrich(g: Gathering): Gathering {
   const store = getStore();
@@ -29,12 +32,14 @@ function enrich(g: Gathering): Gathering {
 
 export async function listGatherings(options?: {
   type?: GatheringType;
+  types?: GatheringType[];
   archived?: boolean;
 }): Promise<Gathering[]> {
   const store = getStore();
   return store.gatherings
     .filter((g) => {
       if (options?.type && g.type !== options.type) return false;
+      if (options?.types && !options.types.includes(g.type)) return false;
       if (options?.archived) return g.status === "archived";
       return g.status === "upcoming" || g.status === "ongoing";
     })
@@ -59,8 +64,12 @@ export async function createGathering(input: {
   starts_at: string;
   ends_at?: string;
   capacity?: number;
+  invite_clan?: boolean;
 }): Promise<Gathering> {
   const session = await requireSession();
+  if (!canOrganizeType(session.role, input.type)) {
+    throw new Error("Tu rol no puede organizar este tipo de encuentro");
+  }
   const store = getStore();
 
   const gathering: Gathering = {
@@ -88,7 +97,49 @@ export async function createGathering(input: {
     created_at: new Date().toISOString(),
   });
 
+  if (input.invite_clan && session.academy_id) {
+    await inviteClanToGathering(gathering.id, session.academy_id);
+  }
+
   return enrich(gathering);
+}
+
+export async function inviteClanToGathering(
+  gatheringId: string,
+  academyId: string,
+): Promise<number> {
+  const session = await requireSession();
+  const store = getStore();
+  const gathering = store.gatherings.find((g) => g.id === gatheringId);
+  if (!gathering) throw new Error("Encuentro no encontrado");
+  if (gathering.host_id !== session.id) {
+    throw new Error("Solo el anfitrión puede invitar al clan");
+  }
+
+  const members = store.memberships.filter(
+    (m) => m.academy_id === academyId && m.status === "accepted",
+  );
+  let invited = 0;
+  for (const member of members) {
+    if (member.profile_id === session.id) continue;
+    const existing = store.gatheringParticipants.find(
+      (p) =>
+        p.gathering_id === gatheringId && p.profile_id === member.profile_id,
+    );
+    if (existing) {
+      if (existing.status !== "joined") existing.status = "invited";
+      continue;
+    }
+    store.gatheringParticipants.push({
+      id: uid("gp"),
+      gathering_id: gatheringId,
+      profile_id: member.profile_id,
+      status: "invited",
+      created_at: new Date().toISOString(),
+    });
+    invited += 1;
+  }
+  return invited;
 }
 
 export async function joinGathering(id: string): Promise<Gathering> {

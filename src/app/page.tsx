@@ -57,7 +57,10 @@ export default async function HomePage() {
       </header>
 
       <QuickActions />
-      <CreatePostForm authorName={session.display_name} />
+      <CreatePostForm
+        authorName={session.display_name}
+        authorAvatar={session.avatar_url}
+      />
 
       <section className="animate-rise-delay-2">
         <div className="mb-3 flex items-center justify-between px-1">

@@ -20,8 +20,8 @@ export default async function EventosPage() {
   }
 
   const [upcoming, archived] = await Promise.all([
-    listGatherings({ type: "event" }),
-    listGatherings({ type: "event", archived: true }),
+    listGatherings({ types: ["event", "seminar"] }),
+    listGatherings({ types: ["event", "seminar"], archived: true }),
   ]);
 
   return (
@@ -29,8 +29,8 @@ export default async function EventosPage() {
       <PageHeader
         eyebrow="Agenda"
         title="Eventos"
-        description="Seminarios y encuentros especiales."
-        action={<CreateGatheringForm defaultType="event" />}
+        description="Seminarios, eventos y encuentros del clan."
+        action={<CreateGatheringForm defaultType="event" role={session.role} hasAcademy={Boolean(session.academy_id)} />}
       />
       {upcoming.length === 0 ? (
         <EmptyState title="No hay eventos próximos" />
@@ -56,3 +56,4 @@ export default async function EventosPage() {
     </div>
   );
 }
+

@@ -4,6 +4,7 @@ import { Avatar } from "@/components/profile/avatar";
 import { Badge } from "@/components/ui/badge";
 import { SoftPanel } from "@/components/ui/card";
 import { formatDateTime } from "@/lib/format";
+import { gatheringTypeLabel } from "@/lib/roles";
 import type { Gathering, Profile } from "@/lib/types";
 import Link from "next/link";
 
@@ -26,13 +27,7 @@ export function GatheringDetail({
   return (
     <div className="space-y-5 animate-rise">
       <div>
-        <Badge className="mb-3">
-          {gathering.type === "open_mat"
-            ? "Open mat"
-            : gathering.type === "event"
-              ? "Evento"
-              : "Rolada"}
-        </Badge>
+        <Badge className="mb-3">{gatheringTypeLabel(gathering.type)}</Badge>
         <h1 className="font-display text-[2.1rem] leading-[1.05] tracking-tight md:text-4xl">
           {gathering.title}
         </h1>
@@ -97,7 +92,11 @@ export function GatheringDetail({
                 className="flex items-center justify-between gap-3 border-b border-border/80 px-4 py-3 last:border-b-0"
               >
                 <div className="flex items-center gap-3">
-                  <Avatar name={p.profile?.display_name ?? "?"} size="sm" />
+                  <Avatar
+                    name={p.profile?.display_name ?? "?"}
+                    src={p.profile?.avatar_url}
+                    size="sm"
+                  />
                   <div>
                     <Link
                       href={`/perfil/${p.profile?.username}`}

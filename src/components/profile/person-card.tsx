@@ -21,7 +21,7 @@ export function PersonCard({
     <div className="border-b border-border/80 px-4 py-4 last:border-b-0">
       <div className="flex items-start gap-3">
         <Link href={`/perfil/${profile.username}`}>
-          <Avatar name={profile.display_name} />
+          <Avatar name={profile.display_name} src={profile.avatar_url} />
         </Link>
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-2">

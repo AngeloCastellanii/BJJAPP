@@ -1,13 +1,11 @@
 "use server";
 
 import { haversineKm } from "@/lib/format";
+import { avatarFallback } from "@/lib/media";
 import type { Belt, Profile } from "@/lib/types";
 import { DEMO_USER_ID } from "../mock/seed";
 import { getStore, uid } from "../mock/store";
-import {
-  clearSessionCookie,
-  writeSessionCookie,
-} from "../session";
+import { clearSessionCookie, writeSessionCookie } from "../session";
 import {
   getProfile,
   requireSession,
@@ -46,10 +44,6 @@ export async function getProfileByUsername(
   return profile ? withAcademy(profile) : null;
 }
 
-export async function listAcademies() {
-  return getStore().academies;
-}
-
 export async function updateProfile(input: {
   display_name?: string;
   bio?: string;
@@ -58,6 +52,7 @@ export async function updateProfile(input: {
   stripes?: number;
   academy_id?: string | null;
   username?: string;
+  avatar_url?: string | null;
 }): Promise<Profile> {
   const session = await requireSession();
   const store = getStore();
@@ -78,10 +73,22 @@ export async function updateProfile(input: {
       ? Math.min(4, Math.max(0, input.stripes))
       : store.profiles[idx].stripes;
 
+  const beltChanged =
+    (input.belt !== undefined && input.belt !== store.profiles[idx].belt) ||
+    (input.stripes !== undefined &&
+      input.stripes !== store.profiles[idx].stripes);
+
   store.profiles[idx] = {
     ...store.profiles[idx],
     ...input,
     stripes,
+    ...(beltChanged
+      ? {
+          belt_verified: false,
+          belt_verified_by: null,
+          belt_verified_at: null,
+        }
+      : {}),
     updated_at: new Date().toISOString(),
   };
 
@@ -142,14 +149,18 @@ export async function createDemoProfile(input: {
     username,
     display_name: input.display_name.trim(),
     bio: null,
-    avatar_url: null,
+    avatar_url: avatarFallback(username),
     city: input.city.trim(),
     country: "VE",
     lat: 10.48,
     lng: -66.9,
     belt: "white",
     stripes: 0,
-    academy_id: store.academies[0]?.id ?? null,
+    belt_verified: false,
+    belt_verified_by: null,
+    belt_verified_at: null,
+    role: "user",
+    academy_id: null,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   };

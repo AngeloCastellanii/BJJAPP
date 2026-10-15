@@ -1,4 +1,6 @@
 import { cn } from "@/lib/cn";
+import { avatarFallback } from "@/lib/media";
+import Image from "next/image";
 
 const tones = [
   "bg-[#ebe7e0] text-[#3f3a34]",
@@ -9,10 +11,12 @@ const tones = [
 
 export function Avatar({
   name,
+  src,
   size = "md",
   className,
 }: {
   name: string;
+  src?: string | null;
   size?: "sm" | "md" | "lg" | "xl";
   className?: string;
 }) {
@@ -37,18 +41,29 @@ export function Avatar({
     xl: "h-20 w-20 text-xl",
   };
 
+  const px = { sm: 36, md: 44, lg: 64, xl: 80 }[size];
+  const imageSrc = src || avatarFallback(name);
+
   return (
     <div
       role="img"
       aria-label={name}
       className={cn(
-        "inline-flex shrink-0 items-center justify-center rounded-full font-semibold tracking-tight ring-2 ring-white",
+        "relative inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full font-semibold tracking-tight ring-2 ring-white",
         tone,
         sizes[size],
         className,
       )}
     >
-      <span aria-hidden>{initials || "?"}</span>
+      <Image
+        src={imageSrc}
+        alt=""
+        width={px}
+        height={px}
+        unoptimized
+        className="h-full w-full object-cover"
+      />
+      <span className="sr-only">{initials || name}</span>
     </div>
   );
 }

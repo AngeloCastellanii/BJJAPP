@@ -1,0 +1,127 @@
+import {
+  JoinAcademyButton,
+  RespondMembershipButton,
+} from "@/components/academies/academy-actions";
+import { SignInPanel } from "@/components/auth/auth-gate";
+import { PageHeader } from "@/components/layout/page-header";
+import { AcademyBadge } from "@/components/profile/academy-badge";
+import { SoftPanel } from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/empty-state";
+import {
+  listAcademies,
+  listMyMemberships,
+} from "@/server/repositories/academies";
+import { getSessionProfile } from "@/server/repositories/profiles";
+import { Users } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+
+export const metadata = { title: "Escuelas" };
+
+export default async function EscuelasPage() {
+  const session = await getSessionProfile();
+  if (!session) {
+    return (
+      <div className="flex min-h-[70dvh] items-center py-8">
+        <SignInPanel />
+      </div>
+    );
+  }
+
+  const [academies, memberships] = await Promise.all([
+    listAcademies(),
+    listMyMemberships(),
+  ]);
+  const pending = memberships.filter((m) => m.status === "pending");
+  const mine = new Set(
+    memberships
+      .filter((m) => m.status === "accepted")
+      .map((m) => m.academy_id),
+  );
+
+  return (
+    <div className="space-y-8">
+      <PageHeader
+        eyebrow="Clanes"
+        title="Escuelas"
+        description="Únete a un clan, muestra el distintivo y recibe invitaciones a open mats."
+      />
+
+      {pending.length > 0 ? (
+        <section>
+          <h2 className="mb-3 px-1 text-sm font-medium text-muted">
+            Solicitudes
+          </h2>
+          <SoftPanel>
+            {pending.map((m) => (
+              <div
+                key={m.id}
+                className="flex flex-col gap-3 border-b border-border/80 px-4 py-4 last:border-b-0 sm:flex-row sm:items-center sm:justify-between"
+              >
+                <div>
+                  <p className="font-medium">{m.academy?.name}</p>
+                  <p className="text-sm text-muted">Pendiente de respuesta</p>
+                </div>
+                <RespondMembershipButton membershipId={m.id} />
+              </div>
+            ))}
+          </SoftPanel>
+        </section>
+      ) : null}
+
+      <section>
+        <h2 className="mb-3 px-1 text-sm font-medium text-muted">
+          Todas las escuelas
+        </h2>
+        {academies.length === 0 ? (
+          <EmptyState
+            title="Sin escuelas"
+            icon={<Users className="h-5 w-5" />}
+          />
+        ) : (
+          <SoftPanel className="animate-rise-delay-1">
+            {academies.map((academy) => (
+              <div
+                key={academy.id}
+                className="flex flex-col gap-3 border-b border-border/80 px-4 py-4 last:border-b-0 sm:flex-row sm:items-center sm:justify-between"
+              >
+                <Link
+                  href={`/escuelas/${academy.slug}`}
+                  className="flex min-w-0 items-center gap-3 hover:opacity-80"
+                >
+                  <div className="relative h-12 w-12 overflow-hidden rounded-2xl bg-surface-2">
+                    {academy.logo_url ? (
+                      <Image
+                        src={academy.logo_url}
+                        alt=""
+                        fill
+                        unoptimized
+                        className="object-cover"
+                      />
+                    ) : null}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="truncate font-semibold">{academy.name}</p>
+                    <p className="text-sm text-muted">
+                      {academy.city} · {academy.member_count ?? 0} miembros
+                    </p>
+                    <div className="mt-1.5">
+                      <AcademyBadge academy={academy} />
+                    </div>
+                  </div>
+                </Link>
+                {mine.has(academy.id) ? (
+                  <span className="text-sm font-medium text-success">
+                    Miembro
+                  </span>
+                ) : (
+                  <JoinAcademyButton academyId={academy.id} />
+                )}
+              </div>
+            ))}
+          </SoftPanel>
+        )}
+      </section>
+    </div>
+  );
+}

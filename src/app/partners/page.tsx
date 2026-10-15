@@ -55,7 +55,10 @@ export default async function PartnersPage() {
                   className="flex flex-col gap-3 border-b border-border/80 px-4 py-4 last:border-b-0 sm:flex-row sm:items-center sm:justify-between"
                 >
                   <div className="flex items-center gap-3">
-                    <Avatar name={other.display_name} />
+                    <Avatar
+                      name={other.display_name}
+                      src={other.avatar_url}
+                    />
                     <div>
                       <Link
                         href={`/perfil/${other.username}`}
@@ -97,7 +100,10 @@ export default async function PartnersPage() {
                   className="flex flex-col gap-3 border-b border-border/80 px-4 py-4 last:border-b-0 sm:flex-row sm:items-center sm:justify-between"
                 >
                   <div className="flex items-center gap-3">
-                    <Avatar name={other.display_name} />
+                    <Avatar
+                      name={other.display_name}
+                      src={other.avatar_url}
+                    />
                     <div>
                       <Link
                         href={`/perfil/${other.username}`}

@@ -32,7 +32,7 @@ export default async function RoladasPage() {
         eyebrow="Encuentros"
         title="Roladas"
         description="Organiza rondas, invita y únete."
-        action={<CreateGatheringForm defaultType="rolada" />}
+        action={<CreateGatheringForm defaultType="rolada" role={session.role} hasAcademy={Boolean(session.academy_id)} />}
       />
 
       {upcoming.length === 0 ? (
@@ -69,3 +69,4 @@ export default async function RoladasPage() {
     </div>
   );
 }
+

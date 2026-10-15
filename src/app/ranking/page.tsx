@@ -47,7 +47,7 @@ export default async function RankingPage({
         description="Wins por periodo y mejor atleta de academia."
       />
 
-      <div className="mb-5 inline-flex rounded-2xl bg-surface p-1 shadow-soft">
+      <div className="mb-5 inline-flex rounded-2xl bg-surface-2 p-1">
         {tabs.map((tab) => (
           <Link
             key={tab.id}
@@ -56,7 +56,7 @@ export default async function RankingPage({
             className={cn(
               "h-10 rounded-xl px-4 text-sm font-medium leading-10 transition",
               period === tab.id
-                ? "bg-accent text-accent-fg"
+                ? "bg-surface text-foreground shadow-soft"
                 : "text-muted hover:text-foreground",
             )}
           >
@@ -89,7 +89,10 @@ export default async function RankingPage({
               >
                 {index + 1}
               </span>
-              <Avatar name={entry.profile.display_name} />
+              <Avatar
+                name={entry.profile.display_name}
+                src={entry.profile.avatar_url}
+              />
               <div className="min-w-0 flex-1">
                 <Link
                   href={`/perfil/${entry.profile.username}`}

@@ -30,7 +30,7 @@ export default async function OpenMatsPage() {
         eyebrow="Abiertos"
         title="Open mats"
         description="Sesiones libres cerca de ti."
-        action={<CreateGatheringForm defaultType="open_mat" />}
+        action={<CreateGatheringForm defaultType="open_mat" role={session.role} hasAcademy={Boolean(session.academy_id)} />}
       />
       {upcoming.length === 0 ? (
         <EmptyState title="No hay open mats próximos" />
@@ -56,3 +56,4 @@ export default async function OpenMatsPage() {
     </div>
   );
 }
+

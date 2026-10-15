@@ -23,7 +23,12 @@ export default async function EventoDetailPage({
   }
 
   const gathering = await getGathering(id);
-  if (!gathering || gathering.type !== "event") notFound();
+  if (
+    !gathering ||
+    (gathering.type !== "event" && gathering.type !== "seminar")
+  ) {
+    notFound();
+  }
 
   const inviteCandidates =
     gathering.host_id === session.id

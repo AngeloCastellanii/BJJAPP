@@ -1,9 +1,11 @@
 "use client";
 
+import { Avatar } from "@/components/profile/avatar";
 import { Button } from "@/components/ui/button";
 import { SoftPanel } from "@/components/ui/card";
 import { Input, Label, Select, Textarea } from "@/components/ui/input";
 import { BELTS, BELT_LABELS } from "@/lib/belts";
+import { fileToDataUrl } from "@/lib/media";
 import type { Academy, Belt, Profile } from "@/lib/types";
 import { updateProfile } from "@/server/repositories/profiles";
 import { useRouter } from "next/navigation";
@@ -20,6 +22,7 @@ export function ProfileEditForm({
   const [pending, start] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState(profile.avatar_url);
 
   if (!open) {
     return (
@@ -30,7 +33,7 @@ export function ProfileEditForm({
   }
 
   return (
-    <SoftPanel className="p-4 animate-rise">
+    <SoftPanel className="animate-rise p-4">
       <form
         className="space-y-3"
         onSubmit={(e) => {
@@ -47,6 +50,7 @@ export function ProfileEditForm({
                 belt: fd.get("belt") as Belt,
                 stripes: Number(fd.get("stripes")),
                 academy_id: String(fd.get("academy_id") || "") || null,
+                avatar_url: avatarUrl,
               });
               setOpen(false);
               router.refresh();
@@ -58,10 +62,46 @@ export function ProfileEditForm({
       >
         <div className="flex items-center justify-between">
           <p className="font-display text-xl tracking-tight">Editar</p>
-          <Button type="button" variant="ghost" size="sm" onClick={() => setOpen(false)}>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => setOpen(false)}
+          >
             Cerrar
           </Button>
         </div>
+
+        <div className="flex items-center gap-4">
+          <Avatar
+            name={profile.display_name}
+            src={avatarUrl}
+            size="lg"
+          />
+          <div>
+            <Label htmlFor="avatar">Foto de perfil</Label>
+            <Input
+              id="avatar"
+              type="file"
+              accept="image/*"
+              className="mt-1"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+                setError(null);
+                start(async () => {
+                  try {
+                    const url = await fileToDataUrl(file, 480, 0.85);
+                    setAvatarUrl(url);
+                  } catch (err) {
+                    setError(err instanceof Error ? err.message : "Error");
+                  }
+                });
+              }}
+            />
+          </div>
+        </div>
+
         <div className="grid gap-3 sm:grid-cols-2">
           <div>
             <Label htmlFor="display_name">Nombre</Label>
@@ -117,13 +157,13 @@ export function ProfileEditForm({
           </div>
         </div>
         <div>
-          <Label htmlFor="academy_id">Academia</Label>
+          <Label htmlFor="academy_id">Escuela / clan</Label>
           <Select
             id="academy_id"
             name="academy_id"
             defaultValue={profile.academy_id ?? ""}
           >
-            <option value="">Sin academia</option>
+            <option value="">Sin escuela</option>
             {academies.map((a) => (
               <option key={a.id} value={a.id}>
                 {a.name} · {a.city}

@@ -10,9 +10,11 @@ import Link from "next/link";
 
 const actions = [
   { href: "/descubrir", label: "Gente", icon: Users },
+  { href: "/escuelas", label: "Escuelas", icon: Users },
   { href: "/roladas", label: "Roladas", icon: CalendarDays },
   { href: "/open-mats", label: "Open mats", icon: CalendarDays },
   { href: "/eventos", label: "Eventos", icon: CalendarDays },
+  { href: "/competencias", label: "Compite", icon: Trophy },
   { href: "/peleas", label: "Peleas", icon: Swords },
   { href: "/partners", label: "Partners", icon: Users },
   { href: "/ranking", label: "Ranking", icon: Trophy },

@@ -7,7 +7,16 @@ export type Belt =
   | "coral"
   | "red";
 
-export type GatheringType = "rolada" | "open_mat" | "event";
+export type UserRole = "user" | "coach" | "master" | "owner";
+
+export type GatheringType =
+  | "rolada"
+  | "open_mat"
+  | "event"
+  | "competition"
+  | "tope"
+  | "seminar";
+
 export type GatheringStatus = "upcoming" | "ongoing" | "archived" | "cancelled";
 export type PartnershipStatus = "pending" | "accepted" | "rejected" | "cancelled";
 export type MatchStatus =
@@ -18,13 +27,33 @@ export type MatchStatus =
   | "completed";
 export type PostType = "post" | "article";
 export type ParticipantStatus = "invited" | "joined" | "declined" | "cancelled";
+export type MembershipStatus = "pending" | "accepted" | "rejected" | "cancelled";
 
 export interface Academy {
   id: string;
   name: string;
+  slug: string;
   city: string;
   country: string;
+  description: string | null;
+  logo_url: string | null;
+  badge_label: string;
+  badge_color: string;
+  owner_id: string | null;
   created_at: string;
+  member_count?: number;
+}
+
+export interface AcademyMembership {
+  id: string;
+  academy_id: string;
+  profile_id: string;
+  status: MembershipStatus;
+  role_in_academy: UserRole;
+  created_at: string;
+  updated_at: string;
+  academy?: Academy;
+  profile?: Profile;
 }
 
 export interface Profile {
@@ -39,10 +68,28 @@ export interface Profile {
   lng: number | null;
   belt: Belt;
   stripes: number;
+  belt_verified: boolean;
+  belt_verified_by: string | null;
+  belt_verified_at: string | null;
+  role: UserRole;
   academy_id: string | null;
   academy?: Academy | null;
   created_at: string;
   updated_at: string;
+}
+
+export interface BeltPromotion {
+  id: string;
+  profile_id: string;
+  promoted_by: string;
+  from_belt: Belt;
+  from_stripes: number;
+  to_belt: Belt;
+  to_stripes: number;
+  notes: string | null;
+  created_at: string;
+  profile?: Profile;
+  promoter?: Profile;
 }
 
 export interface Partnership {
@@ -127,6 +174,7 @@ export interface Post {
   title: string | null;
   body: string;
   cover_url: string | null;
+  image_urls: string[];
   published_at: string;
   created_at: string;
   author?: Profile;

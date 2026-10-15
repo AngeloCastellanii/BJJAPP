@@ -1,5 +1,7 @@
 import type {
   Academy,
+  AcademyMembership,
+  BeltPromotion,
   Gathering,
   GatheringParticipant,
   Match,
@@ -11,9 +13,11 @@ import type {
 } from "@/lib/types";
 import {
   academies as seedAcademies,
+  beltPromotions as seedPromotions,
   gatheringParticipants as seedParticipants,
   gatherings as seedGatherings,
   matches as seedMatches,
+  memberships as seedMemberships,
   partnerships as seedPartnerships,
   posts as seedPosts,
   profiles as seedProfiles,
@@ -23,6 +27,8 @@ import {
 
 export interface MockStore {
   academies: Academy[];
+  memberships: AcademyMembership[];
+  beltPromotions: BeltPromotion[];
   profiles: Profile[];
   partnerships: Partnership[];
   gatherings: Gathering[];
@@ -36,11 +42,16 @@ export interface MockStore {
 
 declare global {
   var __bjjMockStore: MockStore | undefined;
+  var __bjjMockStoreVersion: number | undefined;
 }
+
+const STORE_VERSION = 3;
 
 function cloneStore(): MockStore {
   return {
     academies: structuredClone(seedAcademies),
+    memberships: structuredClone(seedMemberships),
+    beltPromotions: structuredClone(seedPromotions),
     profiles: structuredClone(seedProfiles),
     partnerships: structuredClone(seedPartnerships),
     gatherings: structuredClone(seedGatherings),
@@ -54,8 +65,12 @@ function cloneStore(): MockStore {
 }
 
 export function getStore(): MockStore {
-  if (!globalThis.__bjjMockStore) {
+  if (
+    !globalThis.__bjjMockStore ||
+    globalThis.__bjjMockStoreVersion !== STORE_VERSION
+  ) {
     globalThis.__bjjMockStore = cloneStore();
+    globalThis.__bjjMockStoreVersion = STORE_VERSION;
   }
   return globalThis.__bjjMockStore;
 }

@@ -74,7 +74,10 @@ export default async function PeleasPage() {
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-center gap-3">
-                      <Avatar name={other.display_name} />
+                      <Avatar
+                        name={other.display_name}
+                        src={other.avatar_url}
+                      />
                       <div>
                         <Link
                           href={`/perfil/${other.username}`}
@@ -138,7 +141,11 @@ export default async function PeleasPage() {
                   className="flex items-center justify-between gap-3 border-b border-border/80 px-4 py-3.5 last:border-b-0"
                 >
                   <div className="flex items-center gap-3">
-                    <Avatar name={other.display_name} size="sm" />
+                    <Avatar
+                      name={other.display_name}
+                      src={other.avatar_url}
+                      size="sm"
+                    />
                     <div>
                       <p className="font-medium">vs {other.display_name}</p>
                       <p className="text-xs text-muted">

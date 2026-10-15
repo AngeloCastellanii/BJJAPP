@@ -2,6 +2,7 @@ import { Avatar } from "@/components/profile/avatar";
 import { SoftPanel } from "@/components/ui/card";
 import { formatDate } from "@/lib/format";
 import { getPost } from "@/server/repositories/posts";
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -14,8 +15,10 @@ export default async function BlogArticlePage({
   const post = await getPost(id);
   if (!post || post.type !== "article") notFound();
 
+  const cover = post.cover_url || post.image_urls?.[0];
+
   return (
-    <article className="space-y-5 animate-rise">
+    <article className="animate-rise space-y-5">
       <Link
         href="/blog"
         className="inline-block text-sm text-muted transition hover:text-foreground"
@@ -27,7 +30,11 @@ export default async function BlogArticlePage({
           {post.title}
         </h1>
         <div className="flex items-center gap-3">
-          <Avatar name={post.author?.display_name ?? "?"} size="sm" />
+          <Avatar
+            name={post.author?.display_name ?? "?"}
+            src={post.author?.avatar_url}
+            size="sm"
+          />
           <div>
             <p className="text-sm font-medium">{post.author?.display_name}</p>
             <p className="text-xs text-muted">
@@ -36,6 +43,18 @@ export default async function BlogArticlePage({
           </div>
         </div>
       </header>
+      {cover ? (
+        <div className="relative aspect-[16/9] overflow-hidden rounded-3xl">
+          <Image
+            src={cover}
+            alt=""
+            fill
+            unoptimized
+            className="object-cover"
+            sizes="(max-width: 768px) 100vw, 720px"
+          />
+        </div>
+      ) : null}
       <SoftPanel className="p-5">
         <div className="whitespace-pre-wrap text-[16px] leading-relaxed text-foreground/90">
           {post.body}
