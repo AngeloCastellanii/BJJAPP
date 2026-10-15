@@ -81,9 +81,7 @@ export function ProfileEditForm({
             />
             <div>
               <Label>Avatar</Label>
-              <p className="mt-1 text-xs text-muted">
-                Solo catálogo DiceBear (sin subir foto)
-              </p>
+              <p className="mt-1 text-xs text-muted">Elige uno del catálogo</p>
             </div>
           </div>
           <AvatarCatalog

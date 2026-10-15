@@ -39,8 +39,17 @@ function enrichMembership(m: AcademyMembership): AcademyMembership {
 
 export async function listAcademies(): Promise<Academy[]> {
   return getStore()
-    .academies.map(enrichAcademy)
+    .academies.filter((a) => (a.status ?? "approved") === "approved")
+    .map(enrichAcademy)
     .sort((a, b) => a.name.localeCompare(b.name));
+}
+
+export async function listPendingAcademies(): Promise<Academy[]> {
+  const session = await requireSession();
+  if (!canSuperadmin(session.role)) return [];
+  return getStore()
+    .academies.filter((a) => a.status === "pending")
+    .map(enrichAcademy);
 }
 
 export async function getAcademyById(id: string): Promise<Academy | null> {
@@ -297,6 +306,8 @@ export async function createAcademy(input: {
     badge_label: (input.badge_label?.trim() || name.slice(0, 16)) || "Academia",
     badge_color: input.badge_color?.trim() || "#161616",
     owner_id: ownerId,
+    status: "approved",
+    requested_by: null,
     created_at: new Date().toISOString(),
   };
 
@@ -328,6 +339,101 @@ export async function createAcademy(input: {
   }
 
   return enrichAcademy(academy);
+}
+
+export async function requestAcademy(input: {
+  name: string;
+  city: string;
+  description?: string;
+}): Promise<Academy> {
+  const session = await requireSession();
+  const name = input.name.trim();
+  const city = input.city.trim();
+  if (!name) throw new Error("El nombre es obligatorio");
+  if (!city) throw new Error("La ciudad es obligatoria");
+
+  const store = getStore();
+  const already = store.academies.find(
+    (a) =>
+      a.requested_by === session.id &&
+      a.status === "pending" &&
+      a.name.toLowerCase() === name.toLowerCase(),
+  );
+  if (already) throw new Error("Ya enviaste esa solicitud");
+
+  let slug = slugify(name) || uid("gym");
+  if (store.academies.some((a) => a.slug === slug)) {
+    slug = `${slug}-${uid("x").slice(-4)}`;
+  }
+
+  const academy: Academy = {
+    id: uid("acad"),
+    name,
+    slug,
+    city,
+    country: "VE",
+    description: input.description?.trim() || null,
+    logo_url: avatarFallback(slug),
+    badge_label: name.slice(0, 16) || "Academia",
+    badge_color: "#161616",
+    owner_id: null,
+    status: "pending",
+    requested_by: session.id,
+    created_at: new Date().toISOString(),
+  };
+  store.academies.push(academy);
+  return enrichAcademy(academy);
+}
+
+export async function reviewAcademyRequest(
+  academyId: string,
+  action: "approved" | "rejected",
+): Promise<void> {
+  const session = await requireSession();
+  if (!canSuperadmin(session.role)) {
+    throw new Error("Solo el superadmin puede revisar solicitudes");
+  }
+  const store = getStore();
+  const idx = store.academies.findIndex((a) => a.id === academyId);
+  if (idx < 0) throw new Error("Solicitud no encontrada");
+  const academy = store.academies[idx];
+  if (academy.status !== "pending") throw new Error("Esa solicitud ya se revisó");
+
+  if (action === "rejected") {
+    store.academies[idx] = { ...academy, status: "rejected" };
+    return;
+  }
+
+  const ownerId = academy.requested_by;
+  store.academies[idx] = {
+    ...academy,
+    status: "approved",
+    owner_id: ownerId,
+  };
+  if (!ownerId) return;
+
+  const existing = store.memberships.find(
+    (m) => m.academy_id === academy.id && m.profile_id === ownerId,
+  );
+  if (!existing) {
+    store.memberships.push({
+      id: uid("mem"),
+      academy_id: academy.id,
+      profile_id: ownerId,
+      status: "accepted",
+      role_in_academy: "owner",
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    });
+  }
+  const pIdx = store.profiles.findIndex((p) => p.id === ownerId);
+  if (pIdx >= 0 && !store.profiles[pIdx].academy_id) {
+    store.profiles[pIdx] = {
+      ...store.profiles[pIdx],
+      academy_id: academy.id,
+      updated_at: new Date().toISOString(),
+    };
+  }
 }
 
 export async function assignMemberRole(input: {

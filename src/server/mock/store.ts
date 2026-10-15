@@ -29,10 +29,19 @@ import {
   techniques as seedTechniques,
 } from "./seed";
 
+export interface Account {
+  id: string;
+  profile_id: string;
+  email: string;
+  password_hash: string;
+  created_at: string;
+}
+
 export interface MockStore {
   academies: Academy[];
   memberships: AcademyMembership[];
   beltPromotions: BeltPromotion[];
+  accounts: Account[];
   profiles: Profile[];
   partnerships: Partnership[];
   gatherings: Gathering[];
@@ -51,13 +60,14 @@ declare global {
   var __bjjMockStoreVersion: number | undefined;
 }
 
-const STORE_VERSION = 9;
+const STORE_VERSION = 11;
 
 function cloneStore(): MockStore {
   return {
     academies: structuredClone(seedAcademies),
     memberships: structuredClone(seedMemberships),
     beltPromotions: structuredClone(seedPromotions),
+    accounts: [],
     profiles: structuredClone(seedProfiles),
     partnerships: structuredClone(seedPartnerships),
     gatherings: structuredClone(seedGatherings),

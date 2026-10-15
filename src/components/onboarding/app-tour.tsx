@@ -6,7 +6,10 @@ import { Input, Label, Select } from "@/components/ui/input";
 import { BELTS, BELT_LABELS } from "@/lib/belts";
 import { cn } from "@/lib/cn";
 import type { Belt } from "@/lib/types";
-import { completeOnboarding } from "@/server/repositories/profiles";
+import {
+  completeOnboarding,
+  skipOnboarding,
+} from "@/server/repositories/profiles";
 import {
   CalendarDays,
   GraduationCap,
@@ -350,15 +353,36 @@ export function AppTour({
         </div>
 
         <div className="flex items-center justify-between gap-2 border-t border-border/70 px-5 py-4">
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            disabled={step === 0 || pending}
-            onClick={() => setStep((s) => Math.max(0, s - 1))}
-          >
-            Atrás
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              disabled={step === 0 || pending}
+              onClick={() => setStep((s) => Math.max(0, s - 1))}
+            >
+              Atrás
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              disabled={pending}
+              onClick={() => {
+                setError(null);
+                start(async () => {
+                  try {
+                    await skipOnboarding();
+                    router.refresh();
+                  } catch (err) {
+                    setError(err instanceof Error ? err.message : "Error");
+                  }
+                });
+              }}
+            >
+              Omitir
+            </Button>
+          </div>
           {isLast ? (
             <Button type="button" size="sm" disabled={pending} onClick={submitProfile}>
               Guardar y entrar

@@ -2,7 +2,10 @@
 
 import { Button } from "@/components/ui/button";
 import { Input, Label } from "@/components/ui/input";
-import { signInWithPassword } from "@/server/repositories/profiles";
+import {
+  signInWithPassword,
+  signUpWithPassword,
+} from "@/server/repositories/profiles";
 import { Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
@@ -10,10 +13,14 @@ import { useState, useTransition } from "react";
 export function SignInPanel() {
   const router = useRouter();
   const [pending, start] = useTransition();
+  const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [error, setError] = useState<string | null>(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+
+  const signingUp = mode === "signup";
 
   return (
     <div className="mx-auto w-full max-w-sm animate-rise-delay-1">
@@ -23,16 +30,24 @@ export function SignInPanel() {
           onSubmit={(e) => {
             e.preventDefault();
             setError(null);
+            if (signingUp && password !== confirm) {
+              setError("Las contraseñas no coinciden");
+              return;
+            }
             start(async () => {
               try {
-                const result = await signInWithPassword(email, password);
+                const result = signingUp
+                  ? await signUpWithPassword(email, password)
+                  : await signInWithPassword(email, password);
                 if (!result.ok) {
                   setError(result.error);
                   return;
                 }
                 router.refresh();
               } catch (err) {
-                setError(err instanceof Error ? err.message : "No se pudo entrar");
+                setError(
+                  err instanceof Error ? err.message : "No se pudo continuar",
+                );
               }
             });
           }}
@@ -40,10 +55,12 @@ export function SignInPanel() {
           <div>
             <p className="text-[13px] font-medium text-muted">BJJApp</p>
             <p className="mt-1 font-display text-2xl tracking-tight">
-              Inicia sesión
+              {signingUp ? "Crea tu cuenta" : "Inicia sesión"}
             </p>
             <p className="mt-1 text-sm text-muted">
-              Acceso con tu correo y contraseña
+              {signingUp
+                ? "Después te pedimos nombre, cinturón y academia."
+                : "Entra con tu correo y contraseña"}
             </p>
           </div>
           <div>
@@ -64,8 +81,9 @@ export function SignInPanel() {
               <Input
                 id="password"
                 type={showPassword ? "text" : "password"}
-                autoComplete="current-password"
+                autoComplete={signingUp ? "new-password" : "current-password"}
                 required
+                minLength={signingUp ? 8 : undefined}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
@@ -85,11 +103,37 @@ export function SignInPanel() {
               </button>
             </div>
           </div>
+          {signingUp ? (
+            <div>
+              <Label htmlFor="confirm">Repite la contraseña</Label>
+              <Input
+                id="confirm"
+                type={showPassword ? "text" : "password"}
+                autoComplete="new-password"
+                required
+                minLength={8}
+                value={confirm}
+                onChange={(e) => setConfirm(e.target.value)}
+                placeholder="••••••••"
+              />
+            </div>
+          ) : null}
           {error ? <p className="text-sm text-danger">{error}</p> : null}
           <Button className="w-full" size="lg" disabled={pending}>
-            Entrar
+            {signingUp ? "Crear cuenta" : "Entrar"}
           </Button>
         </form>
+        <button
+          type="button"
+          className="mt-5 w-full text-center text-sm text-muted transition hover:text-foreground"
+          onClick={() => {
+            setMode(signingUp ? "signin" : "signup");
+            setError(null);
+            setConfirm("");
+          }}
+        >
+          {signingUp ? "Ya tengo cuenta" : "Crear una cuenta"}
+        </button>
       </div>
     </div>
   );

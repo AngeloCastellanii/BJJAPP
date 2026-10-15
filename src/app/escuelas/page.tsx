@@ -4,6 +4,10 @@ import {
 } from "@/components/academies/academy-actions";
 import { AssignRoleForm } from "@/components/academies/assign-role-form";
 import { CreateAcademyForm } from "@/components/academies/create-academy-form";
+import {
+  AcademyRequestList,
+  RequestAcademyForm,
+} from "@/components/academies/academy-requests";
 import { SignInPanel } from "@/components/auth/auth-gate";
 import { PageHeader } from "@/components/layout/page-header";
 import { AcademyBadge } from "@/components/profile/academy-badge";
@@ -14,6 +18,7 @@ import {
   listAcademies,
   listAllProfiles,
   listMyMemberships,
+  listPendingAcademies,
 } from "@/server/repositories/academies";
 import { getSessionProfile } from "@/server/repositories/profiles";
 import { Users } from "lucide-react";
@@ -33,10 +38,11 @@ export default async function EscuelasPage() {
   }
 
   const isAdmin = canSuperadmin(session.role);
-  const [academies, memberships, allProfiles] = await Promise.all([
+  const [academies, memberships, allProfiles, requests] = await Promise.all([
     listAcademies(),
     listMyMemberships(),
     isAdmin ? listAllProfiles() : Promise.resolve([]),
+    isAdmin ? listPendingAcademies() : Promise.resolve([]),
   ]);
   const pending = memberships.filter((m) => m.status === "pending");
   const mine = new Set(
@@ -50,9 +56,16 @@ export default async function EscuelasPage() {
       <PageHeader
         eyebrow="Academias"
         title="Academia"
-        description="Únete a una academia, muestra el distintivo y recibe invitaciones a open mats."
-        action={isAdmin ? <CreateAcademyForm /> : undefined}
+        description="Por ahora está Nueva Era. Puedes unirte o solicitar otra academia."
+        action={
+          <div className="flex flex-wrap gap-2">
+            <RequestAcademyForm />
+            {isAdmin ? <CreateAcademyForm /> : null}
+          </div>
+        }
       />
+
+      {isAdmin ? <AcademyRequestList requests={requests} /> : null}
 
       {isAdmin ? (
         <section className="space-y-3">

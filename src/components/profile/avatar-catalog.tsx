@@ -43,7 +43,7 @@ export function AvatarCatalog({
   return (
     <div className="space-y-3 rounded-2xl border border-border/80 bg-surface-2/40 p-3">
       <div className="flex items-center justify-between gap-2">
-        <p className="text-sm font-medium">Catálogo DiceBear</p>
+        <p className="text-sm font-medium">Elige un avatar</p>
         <button
           type="button"
           onClick={() => setPage((p) => p + 1)}

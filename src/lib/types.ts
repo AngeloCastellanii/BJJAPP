@@ -29,6 +29,7 @@ export type PostType = "post" | "article";
 export type PostVisibility = "public" | "friends" | "academy";
 export type ParticipantStatus = "invited" | "joined" | "declined" | "cancelled";
 export type MembershipStatus = "pending" | "accepted" | "rejected" | "cancelled";
+export type AcademyStatus = "pending" | "approved" | "rejected";
 
 export interface Academy {
   id: string;
@@ -41,6 +42,8 @@ export interface Academy {
   badge_label: string;
   badge_color: string;
   owner_id: string | null;
+  status: AcademyStatus;
+  requested_by: string | null;
   created_at: string;
   member_count?: number;
 }
