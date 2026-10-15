@@ -47,11 +47,12 @@ export default async function RankingPage({
         description="Wins por periodo y mejor atleta de academia."
       />
 
-      <div className="mb-5 inline-flex rounded-2xl bg-surface p-1 shadow-sm">
+      <div className="mb-5 inline-flex rounded-2xl bg-surface p-1 shadow-soft">
         {tabs.map((tab) => (
           <Link
             key={tab.id}
             href={`/ranking?period=${tab.id}`}
+            aria-current={period === tab.id ? "page" : undefined}
             className={cn(
               "h-10 rounded-xl px-4 text-sm font-medium leading-10 transition",
               period === tab.id

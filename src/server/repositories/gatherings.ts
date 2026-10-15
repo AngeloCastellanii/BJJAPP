@@ -4,9 +4,10 @@ import type {
   Gathering,
   GatheringParticipant,
   GatheringType,
+  Profile,
 } from "@/lib/types";
 import { getStore, uid } from "../mock/store";
-import { getAcademy, getProfile, requireSession } from "./helpers";
+import { getAcademy, getProfile, requireSession, withAcademy } from "./helpers";
 
 function enrich(g: Gathering): Gathering {
   const store = getStore();
@@ -59,7 +60,7 @@ export async function createGathering(input: {
   ends_at?: string;
   capacity?: number;
 }): Promise<Gathering> {
-  const session = requireSession();
+  const session = await requireSession();
   const store = getStore();
 
   const gathering: Gathering = {
@@ -91,7 +92,7 @@ export async function createGathering(input: {
 }
 
 export async function joinGathering(id: string): Promise<Gathering> {
-  const session = requireSession();
+  const session = await requireSession();
   const store = getStore();
   const gathering = store.gatherings.find((g) => g.id === id);
   if (!gathering) throw new Error("Encuentro no encontrado");
@@ -125,8 +126,23 @@ export async function joinGathering(id: string): Promise<Gathering> {
   return enrich(gathering);
 }
 
+export async function cancelGathering(id: string): Promise<Gathering> {
+  const session = await requireSession();
+  const store = getStore();
+  const gathering = store.gatherings.find((g) => g.id === id);
+  if (!gathering) throw new Error("Encuentro no encontrado");
+  if (gathering.host_id !== session.id) {
+    throw new Error("Solo el anfitrión puede cancelar");
+  }
+  if (gathering.status === "cancelled" || gathering.status === "archived") {
+    throw new Error("Este encuentro ya no está activo");
+  }
+  gathering.status = "cancelled";
+  return enrich(gathering);
+}
+
 export async function leaveGathering(id: string): Promise<Gathering> {
-  const session = requireSession();
+  const session = await requireSession();
   const store = getStore();
   const gathering = store.gatherings.find((g) => g.id === id);
   if (!gathering) throw new Error("Encuentro no encontrado");
@@ -146,7 +162,7 @@ export async function inviteToGathering(
   gatheringId: string,
   profileId: string,
 ): Promise<GatheringParticipant> {
-  const session = requireSession();
+  const session = await requireSession();
   const store = getStore();
   const gathering = store.gatherings.find((g) => g.id === gatheringId);
   if (!gathering) throw new Error("Encuentro no encontrado");
@@ -175,11 +191,61 @@ export async function inviteToGathering(
   return { ...participant, profile: getProfile(profileId) ?? undefined };
 }
 
+export async function listGatheringInviteCandidates(
+  gatheringId: string,
+): Promise<Profile[]> {
+  const session = await requireSession();
+  const store = getStore();
+  const gathering = store.gatherings.find((g) => g.id === gatheringId);
+  if (!gathering) throw new Error("Encuentro no encontrado");
+  if (gathering.host_id !== session.id) {
+    throw new Error("Solo el anfitrión puede invitar");
+  }
+
+  const taken = new Set(
+    store.gatheringParticipants
+      .filter(
+        (p) =>
+          p.gathering_id === gatheringId &&
+          (p.status === "joined" || p.status === "invited"),
+      )
+      .map((p) => p.profile_id),
+  );
+
+  const partnerIds = new Set(
+    store.partnerships
+      .filter(
+        (p) =>
+          p.status === "accepted" &&
+          (p.requester_id === session.id || p.addressee_id === session.id),
+      )
+      .flatMap((p) => [p.requester_id, p.addressee_id]),
+  );
+
+  return store.profiles
+    .filter(
+      (p) =>
+        p.id !== session.id && !taken.has(p.id) && partnerIds.has(p.id),
+    )
+    .map(withAcademy)
+    .concat(
+      store.profiles
+        .filter(
+          (p) =>
+            p.id !== session.id &&
+            !taken.has(p.id) &&
+            !partnerIds.has(p.id),
+        )
+        .map(withAcademy)
+        .slice(0, 12),
+    );
+}
+
 export async function respondGatheringInvite(
   gatheringId: string,
   action: "joined" | "declined",
 ): Promise<Gathering> {
-  const session = requireSession();
+  const session = await requireSession();
   const store = getStore();
   const participant = store.gatheringParticipants.find(
     (p) => p.gathering_id === gatheringId && p.profile_id === session.id,

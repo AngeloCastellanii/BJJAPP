@@ -8,7 +8,7 @@ export function SoftPanel({
   return (
     <div
       className={cn(
-        "overflow-hidden rounded-3xl border border-border/70 bg-surface shadow-sm",
+        "overflow-hidden rounded-3xl border border-border/70 bg-surface shadow-soft",
         className,
       )}
       {...props}

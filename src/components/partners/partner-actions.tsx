@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import {
+  endPartnership,
   invitePartner,
   respondPartnership,
 } from "@/server/repositories/partners";
@@ -92,6 +93,36 @@ export function PartnershipRespond({
         Cancelar
       </Button>
       {error ? <p className="text-xs text-danger">{error}</p> : null}
+    </div>
+  );
+}
+
+export function EndPartnershipButton({ id }: { id: string }) {
+  const router = useRouter();
+  const [pending, start] = useTransition();
+  const [error, setError] = useState<string | null>(null);
+
+  return (
+    <div>
+      <Button
+        size="sm"
+        variant="ghost"
+        disabled={pending}
+        onClick={() => {
+          setError(null);
+          start(async () => {
+            try {
+              await endPartnership(id);
+              router.refresh();
+            } catch (e) {
+              setError(e instanceof Error ? e.message : "Error");
+            }
+          });
+        }}
+      >
+        Terminar
+      </Button>
+      {error ? <p className="mt-1 text-xs text-danger">{error}</p> : null}
     </div>
   );
 }

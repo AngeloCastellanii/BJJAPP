@@ -1,5 +1,6 @@
 import type { Academy, Profile } from "@/lib/types";
 import { getStore } from "../mock/store";
+import { readSessionCookie } from "../session";
 
 export function withAcademy(profile: Profile): Profile {
   const store = getStore();
@@ -14,7 +15,17 @@ export function getProfile(id: string): Profile | null {
   return profile ? withAcademy(profile) : null;
 }
 
-export function requireSession(): Profile {
+export async function syncSessionFromCookie(): Promise<void> {
+  const store = getStore();
+  if (store.sessionUserId) return;
+  const cookieId = await readSessionCookie();
+  if (cookieId && store.profiles.some((p) => p.id === cookieId)) {
+    store.sessionUserId = cookieId;
+  }
+}
+
+export async function requireSession(): Promise<Profile> {
+  await syncSessionFromCookie();
   const store = getStore();
   if (!store.sessionUserId) {
     throw new Error("Debes iniciar sesión");

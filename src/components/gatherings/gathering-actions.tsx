@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import {
+  cancelGathering,
   joinGathering,
   leaveGathering,
   respondGatheringInvite,
@@ -13,10 +14,12 @@ export function GatheringActions({
   gatheringId,
   myStatus,
   isHost,
+  isActive = true,
 }: {
   gatheringId: string;
   myStatus?: string;
   isHost: boolean;
+  isActive?: boolean;
 }) {
   const router = useRouter();
   const [pending, start] = useTransition();
@@ -33,6 +36,10 @@ export function GatheringActions({
       }
     });
   };
+
+  if (!isActive) {
+    return <p className="text-sm text-muted">Este encuentro ya no está activo.</p>;
+  }
 
   return (
     <div className="space-y-2">
@@ -76,7 +83,13 @@ export function GatheringActions({
           </Button>
         ) : null}
         {isHost ? (
-          <p className="self-center text-sm text-muted">Eres el anfitrión</p>
+          <Button
+            variant="danger"
+            disabled={pending}
+            onClick={() => run(() => cancelGathering(gatheringId))}
+          >
+            Cancelar encuentro
+          </Button>
         ) : null}
       </div>
       {error ? <p className="text-sm text-danger">{error}</p> : null}

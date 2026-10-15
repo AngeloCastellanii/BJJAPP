@@ -1,7 +1,10 @@
 import { SignInPanel } from "@/components/auth/auth-gate";
 import { PageHeader } from "@/components/layout/page-header";
 import { ChallengeButton } from "@/components/matches/match-actions";
-import { PartnershipRespond } from "@/components/partners/partner-actions";
+import {
+  EndPartnershipButton,
+  PartnershipRespond,
+} from "@/components/partners/partner-actions";
 import { Avatar } from "@/components/profile/avatar";
 import { BeltBadge } from "@/components/profile/belt-badge";
 import { SoftPanel } from "@/components/ui/card";
@@ -107,7 +110,10 @@ export default async function PartnersPage() {
                       </div>
                     </div>
                   </div>
-                  <ChallengeButton opponentId={other.id} />
+                  <div className="flex flex-wrap items-center gap-2">
+                    <ChallengeButton opponentId={other.id} />
+                    <EndPartnershipButton id={p.id} />
+                  </div>
                 </div>
               );
             })}

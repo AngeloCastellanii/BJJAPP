@@ -14,7 +14,7 @@ function enrich(m: Match): Match {
 }
 
 export async function listMyMatches(): Promise<Match[]> {
-  const session = requireSession();
+  const session = await requireSession();
   return getStore()
     .matches.filter(
       (m) =>
@@ -33,7 +33,7 @@ export async function challengeMatch(input: {
   notes?: string;
   gathering_id?: string;
 }): Promise<Match> {
-  const session = requireSession();
+  const session = await requireSession();
   if (input.opponent_id === session.id) {
     throw new Error("No puedes retarte a ti mismo");
   }
@@ -63,7 +63,7 @@ export async function respondMatch(
   id: string,
   action: "accepted" | "rejected" | "cancelled",
 ): Promise<Match> {
-  const session = requireSession();
+  const session = await requireSession();
   const store = getStore();
   const idx = store.matches.findIndex((m) => m.id === id);
   if (idx < 0) throw new Error("Pelea no encontrada");
@@ -96,7 +96,7 @@ export async function completeMatch(
   winnerId: string,
   notes?: string,
 ): Promise<Match> {
-  const session = requireSession();
+  const session = await requireSession();
   const store = getStore();
   const idx = store.matches.findIndex((m) => m.id === id);
   if (idx < 0) throw new Error("Pelea no encontrada");
@@ -105,8 +105,8 @@ export async function completeMatch(
   if (match.challenger_id !== session.id && match.opponent_id !== session.id) {
     throw new Error("No autorizado");
   }
-  if (match.status !== "accepted" && match.status !== "pending") {
-    throw new Error("Estado inválido para registrar resultado");
+  if (match.status !== "accepted") {
+    throw new Error("Primero deben aceptar el reto");
   }
   if (winnerId !== match.challenger_id && winnerId !== match.opponent_id) {
     throw new Error("El ganador debe ser uno de los dos");

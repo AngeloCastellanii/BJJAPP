@@ -31,7 +31,7 @@ export function Segmented<T extends string>({
             className={cn(
               "h-9 rounded-xl px-3.5 text-sm font-medium transition",
               active
-                ? "bg-surface text-foreground shadow-sm"
+                ? "bg-surface text-foreground shadow-soft"
                 : "text-muted hover:text-foreground",
             )}
             onClick={() => onChange(option.value)}

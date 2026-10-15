@@ -39,15 +39,16 @@ export function Avatar({
 
   return (
     <div
+      role="img"
+      aria-label={name}
       className={cn(
         "inline-flex shrink-0 items-center justify-center rounded-full font-semibold tracking-tight ring-2 ring-white",
         tone,
         sizes[size],
         className,
       )}
-      aria-hidden
     >
-      {initials || "?"}
+      <span aria-hidden>{initials || "?"}</span>
     </div>
   );
 }

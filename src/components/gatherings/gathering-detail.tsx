@@ -1,4 +1,5 @@
 import { GatheringActions } from "@/components/gatherings/gathering-actions";
+import { InviteToGathering } from "@/components/gatherings/invite-to-gathering";
 import { Avatar } from "@/components/profile/avatar";
 import { Badge } from "@/components/ui/badge";
 import { SoftPanel } from "@/components/ui/card";
@@ -9,13 +10,18 @@ import Link from "next/link";
 export function GatheringDetail({
   gathering,
   session,
+  inviteCandidates = [],
 }: {
   gathering: Gathering;
   session: Profile;
+  inviteCandidates?: Profile[];
 }) {
   const myParticipation = gathering.participants?.find(
     (p) => p.profile_id === session.id,
   );
+  const isHost = gathering.host_id === session.id;
+  const isActive =
+    gathering.status === "upcoming" || gathering.status === "ongoing";
 
   return (
     <div className="space-y-5 animate-rise">
@@ -32,6 +38,7 @@ export function GatheringDetail({
         </h1>
         <p className="mt-2 text-sm text-muted">
           {formatDateTime(gathering.starts_at)}
+          {gathering.status === "cancelled" ? " · Cancelado" : ""}
         </p>
       </div>
 
@@ -62,9 +69,20 @@ export function GatheringDetail({
         <GatheringActions
           gatheringId={gathering.id}
           myStatus={myParticipation?.status}
-          isHost={gathering.host_id === session.id}
+          isHost={isHost}
+          isActive={isActive}
         />
       </SoftPanel>
+
+      {isHost && isActive ? (
+        <section className="space-y-3">
+          <h2 className="px-1 text-sm font-medium text-muted">Invitar</h2>
+          <InviteToGathering
+            gatheringId={gathering.id}
+            candidates={inviteCandidates}
+          />
+        </section>
+      ) : null}
 
       <section>
         <h2 className="mb-3 px-1 text-sm font-medium text-muted">

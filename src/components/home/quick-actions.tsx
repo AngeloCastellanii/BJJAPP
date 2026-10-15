@@ -1,6 +1,7 @@
 import {
   BookOpen,
   CalendarDays,
+  Newspaper,
   Swords,
   Trophy,
   Users,
@@ -10,9 +11,13 @@ import Link from "next/link";
 const actions = [
   { href: "/descubrir", label: "Gente", icon: Users },
   { href: "/roladas", label: "Roladas", icon: CalendarDays },
+  { href: "/open-mats", label: "Open mats", icon: CalendarDays },
+  { href: "/eventos", label: "Eventos", icon: CalendarDays },
   { href: "/peleas", label: "Peleas", icon: Swords },
+  { href: "/partners", label: "Partners", icon: Users },
   { href: "/ranking", label: "Ranking", icon: Trophy },
   { href: "/tecnicas", label: "Técnicas", icon: BookOpen },
+  { href: "/blog", label: "Blog", icon: Newspaper },
 ];
 
 export function QuickActions() {
@@ -24,7 +29,7 @@ export function QuickActions() {
           <Link
             key={action.href}
             href={action.href}
-            className="flex min-w-19 flex-col items-center gap-2 rounded-2xl bg-surface px-3 py-3 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+            className="flex min-w-19 flex-col items-center gap-2 rounded-2xl bg-surface px-3 py-3 shadow-soft transition hover:-translate-y-0.5 hover:shadow-lift"
           >
             <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-surface-2 text-foreground">
               <Icon className="h-5 w-5" strokeWidth={1.75} />

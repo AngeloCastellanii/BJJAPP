@@ -11,7 +11,7 @@ export async function listTechniques(): Promise<Technique[]> {
 }
 
 export async function listMyTechniqueLogs(): Promise<TechniqueLog[]> {
-  const session = requireSession();
+  const session = await requireSession();
   const store = getStore();
   return store.techniqueLogs
     .filter((l) => l.profile_id === session.id)
@@ -30,7 +30,7 @@ export async function logTechnique(input: {
   notes?: string;
   practiced_at?: string;
 }): Promise<TechniqueLog> {
-  const session = requireSession();
+  const session = await requireSession();
   const store = getStore();
   const technique = store.techniques.find((t) => t.id === input.technique_id);
   if (!technique) throw new Error("Técnica no encontrada");

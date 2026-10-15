@@ -50,7 +50,7 @@ export default async function HomePage() {
         </div>
         <Link
           href="/roladas"
-          className="rounded-2xl bg-accent px-3.5 py-2.5 text-sm font-medium text-accent-fg shadow-sm"
+          className="rounded-2xl bg-accent px-3.5 py-2.5 text-sm font-medium text-accent-fg shadow-soft"
         >
           Roladas
         </Link>

@@ -73,7 +73,7 @@ export default async function TecnicasPage() {
           {techniques.map((t) => (
             <div
               key={t.id}
-              className="rounded-2xl bg-surface p-4 shadow-sm"
+              className="rounded-2xl bg-surface p-4 shadow-soft"
             >
               <p className="font-medium">{t.name}</p>
               <p className="mt-1 text-xs text-muted">

@@ -30,13 +30,30 @@ export const metadata: Metadata = {
     title: "MatLink",
   },
   manifest: "/manifest.webmanifest",
+  openGraph: {
+    title: "MatLink",
+    description:
+      "Roladas, open mats, peleas, partners y ranking para la comunidad de jiu-jitsu.",
+    siteName: "MatLink",
+    type: "website",
+    locale: "es_VE",
+  },
+  twitter: {
+    card: "summary",
+    title: "MatLink",
+    description:
+      "Roladas, open mats, peleas, partners y ranking para la comunidad de jiu-jitsu.",
+  },
+  icons: {
+    icon: [{ url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" }],
+    apple: [{ url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" }],
+  },
 };
 
 export const viewport: Viewport = {
   themeColor: "#F4F4F2",
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
   viewportFit: "cover",
 };
 

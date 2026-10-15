@@ -29,7 +29,7 @@ export async function getRanking(
 
   let academyId: string | null = null;
   if (period === "academy") {
-    const session = requireSession();
+    const session = await requireSession();
     academyId = session.academy_id;
     if (!academyId) return [];
   }

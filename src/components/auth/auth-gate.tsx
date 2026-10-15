@@ -24,7 +24,7 @@ export function SignInPanel() {
 
   return (
     <div className="mx-auto w-full max-w-sm animate-rise-delay-1">
-      <div className="rounded-4xl bg-surface p-6 shadow-md">
+      <div className="rounded-4xl bg-surface p-6 shadow-lift">
         {mode === "demo" ? (
           <div className="space-y-5">
             <div>

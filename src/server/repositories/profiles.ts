@@ -4,9 +4,19 @@ import { haversineKm } from "@/lib/format";
 import type { Belt, Profile } from "@/lib/types";
 import { DEMO_USER_ID } from "../mock/seed";
 import { getStore, uid } from "../mock/store";
-import { getProfile, requireSession, withAcademy } from "./helpers";
+import {
+  clearSessionCookie,
+  writeSessionCookie,
+} from "../session";
+import {
+  getProfile,
+  requireSession,
+  syncSessionFromCookie,
+  withAcademy,
+} from "./helpers";
 
 export async function getSessionProfile(): Promise<Profile | null> {
+  await syncSessionFromCookie();
   const store = getStore();
   if (!store.sessionUserId) return null;
   return getProfile(store.sessionUserId);
@@ -15,6 +25,7 @@ export async function getSessionProfile(): Promise<Profile | null> {
 export async function signInAsDemo(): Promise<Profile> {
   const store = getStore();
   store.sessionUserId = DEMO_USER_ID;
+  await writeSessionCookie(DEMO_USER_ID);
   const profile = getProfile(DEMO_USER_ID);
   if (!profile) throw new Error("Usuario demo no disponible");
   return profile;
@@ -22,6 +33,7 @@ export async function signInAsDemo(): Promise<Profile> {
 
 export async function signOut(): Promise<void> {
   getStore().sessionUserId = null;
+  await clearSessionCookie();
 }
 
 export async function getProfileByUsername(
@@ -47,7 +59,7 @@ export async function updateProfile(input: {
   academy_id?: string | null;
   username?: string;
 }): Promise<Profile> {
-  const session = requireSession();
+  const session = await requireSession();
   const store = getStore();
   const idx = store.profiles.findIndex((p) => p.id === session.id);
   if (idx < 0) throw new Error("Perfil no encontrado");
@@ -79,7 +91,7 @@ export async function updateProfile(input: {
 export async function discoverNearby(limit = 20): Promise<
   Array<Profile & { distance_km: number | null }>
 > {
-  const session = requireSession();
+  const session = await requireSession();
   const store = getStore();
   const partnerIds = new Set(
     store.partnerships
@@ -144,5 +156,6 @@ export async function createDemoProfile(input: {
 
   store.profiles.push(profile);
   store.sessionUserId = profile.id;
+  await writeSessionCookie(profile.id);
   return withAcademy(profile);
 }

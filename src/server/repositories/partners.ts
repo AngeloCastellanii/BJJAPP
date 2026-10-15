@@ -13,7 +13,7 @@ function enrich(p: Partnership): Partnership {
 }
 
 export async function listMyPartnerships(): Promise<Partnership[]> {
-  const session = requireSession();
+  const session = await requireSession();
   const store = getStore();
   return store.partnerships
     .filter(
@@ -28,7 +28,7 @@ export async function listMyPartnerships(): Promise<Partnership[]> {
 }
 
 export async function invitePartner(addresseeId: string): Promise<Partnership> {
-  const session = requireSession();
+  const session = await requireSession();
   if (addresseeId === session.id) {
     throw new Error("No puedes invitarte a ti mismo");
   }
@@ -63,7 +63,7 @@ export async function respondPartnership(
   id: string,
   action: "accepted" | "rejected" | "cancelled",
 ): Promise<Partnership> {
-  const session = requireSession();
+  const session = await requireSession();
   const store = getStore();
   const idx = store.partnerships.findIndex((p) => p.id === id);
   if (idx < 0) throw new Error("Invitación no encontrada");
@@ -88,11 +88,34 @@ export async function respondPartnership(
 }
 
 export async function listAcceptedPartners() {
-  const session = requireSession();
+  const session = await requireSession();
   const items = await listMyPartnerships();
   return items
     .filter((p) => p.status === "accepted")
     .map((p) =>
       p.requester_id === session.id ? p.addressee! : p.requester!,
     );
+}
+
+export async function endPartnership(id: string): Promise<Partnership> {
+  const session = await requireSession();
+  const store = getStore();
+  const idx = store.partnerships.findIndex((p) => p.id === id);
+  if (idx < 0) throw new Error("Relación no encontrada");
+
+  const item = store.partnerships[idx];
+  if (item.requester_id !== session.id && item.addressee_id !== session.id) {
+    throw new Error("No autorizado");
+  }
+  if (item.status !== "accepted") {
+    throw new Error("Solo puedes terminar un partnership activo");
+  }
+
+  store.partnerships[idx] = {
+    ...item,
+    status: "cancelled",
+    updated_at: new Date().toISOString(),
+  };
+
+  return enrich(store.partnerships[idx]);
 }

@@ -38,7 +38,12 @@ export default async function PeleasPage() {
   const active = matches.filter(
     (m) => m.status === "pending" || m.status === "accepted",
   );
-  const history = matches.filter((m) => m.status === "completed");
+  const history = matches.filter(
+    (m) =>
+      m.status === "completed" ||
+      m.status === "rejected" ||
+      m.status === "cancelled",
+  );
 
   return (
     <div className="space-y-8">
@@ -95,7 +100,7 @@ export default async function PeleasPage() {
                       isOpponent={isOpponent}
                     />
                   ) : null}
-                  {m.status === "accepted" || m.status === "pending" ? (
+                  {m.status === "accepted" ? (
                     <CompleteMatchForm
                       matchId={m.id}
                       challengerId={m.challenger_id}
@@ -121,6 +126,12 @@ export default async function PeleasPage() {
               const other =
                 m.challenger_id === session.id ? m.opponent! : m.challenger!;
               const won = m.winner_id === session.id;
+              const result =
+                m.status === "completed"
+                  ? won
+                    ? "Victoria"
+                    : "Derrota"
+                  : statusLabel[m.status];
               return (
                 <div
                   key={m.id}
@@ -131,18 +142,22 @@ export default async function PeleasPage() {
                     <div>
                       <p className="font-medium">vs {other.display_name}</p>
                       <p className="text-xs text-muted">
-                        {m.completed_at ? formatRelative(m.completed_at) : ""}
+                        {m.completed_at
+                          ? formatRelative(m.completed_at)
+                          : formatRelative(m.updated_at)}
                       </p>
                     </div>
                   </div>
                   <span
                     className={
-                      won
-                        ? "rounded-lg bg-success/10 px-2.5 py-1 text-xs font-medium text-success"
-                        : "rounded-lg bg-danger/10 px-2.5 py-1 text-xs font-medium text-danger"
+                      m.status === "completed"
+                        ? won
+                          ? "rounded-lg bg-success/10 px-2.5 py-1 text-xs font-medium text-success"
+                          : "rounded-lg bg-danger/10 px-2.5 py-1 text-xs font-medium text-danger"
+                        : "rounded-lg bg-surface-2 px-2.5 py-1 text-xs font-medium text-muted"
                     }
                   >
-                    {won ? "Victoria" : "Derrota"}
+                    {result}
                   </span>
                 </div>
               );

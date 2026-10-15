@@ -1,6 +1,9 @@
 import { SignInPanel } from "@/components/auth/auth-gate";
 import { GatheringDetail } from "@/components/gatherings/gathering-detail";
-import { getGathering } from "@/server/repositories/gatherings";
+import {
+  getGathering,
+  listGatheringInviteCandidates,
+} from "@/server/repositories/gatherings";
 import { getSessionProfile } from "@/server/repositories/profiles";
 import { notFound } from "next/navigation";
 
@@ -22,5 +25,16 @@ export default async function EventoDetailPage({
   const gathering = await getGathering(id);
   if (!gathering || gathering.type !== "event") notFound();
 
-  return <GatheringDetail gathering={gathering} session={session} />;
+  const inviteCandidates =
+    gathering.host_id === session.id
+      ? await listGatheringInviteCandidates(id)
+      : [];
+
+  return (
+    <GatheringDetail
+      gathering={gathering}
+      session={session}
+      inviteCandidates={inviteCandidates}
+    />
+  );
 }

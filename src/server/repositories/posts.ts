@@ -31,7 +31,7 @@ export async function createPost(input: {
   title?: string;
   body: string;
 }): Promise<Post> {
-  const session = requireSession();
+  const session = await requireSession();
   if (!input.body.trim()) throw new Error("El contenido es obligatorio");
   if (input.type === "article" && !input.title?.trim()) {
     throw new Error("El artículo necesita título");
