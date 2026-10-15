@@ -1,18 +1,18 @@
 "use server";
 
 import type { Technique, TechniqueLog } from "@/lib/types";
-import { getStore, uid } from "../mock/store";
+import { loadStore, uid } from "../mock/store";
 import { requireSession } from "./helpers";
 
 export async function listTechniques(): Promise<Technique[]> {
-  return [...getStore().techniques].sort((a, b) =>
+  return [...(await loadStore()).techniques].sort((a, b) =>
     a.name.localeCompare(b.name, "es"),
   );
 }
 
 export async function listMyTechniqueLogs(): Promise<TechniqueLog[]> {
   const session = await requireSession();
-  const store = getStore();
+  const store = (await loadStore());
   return store.techniqueLogs
     .filter((l) => l.profile_id === session.id)
     .map((l) => ({
@@ -31,7 +31,7 @@ export async function logTechnique(input: {
   practiced_at?: string;
 }): Promise<TechniqueLog> {
   const session = await requireSession();
-  const store = getStore();
+  const store = (await loadStore());
   const technique = store.techniques.find((t) => t.id === input.technique_id);
   if (!technique) throw new Error("Técnica no encontrada");
 

@@ -70,7 +70,7 @@ export default async function EscuelasPage() {
       {isAdmin ? (
         <section className="space-y-3">
           <h2 className="px-1 text-sm font-medium text-muted">
-            Panel superadmin
+            Administración
           </h2>
           <AssignRoleForm profiles={allProfiles} academies={academies} />
         </section>

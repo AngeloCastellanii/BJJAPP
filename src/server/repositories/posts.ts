@@ -8,7 +8,7 @@ import type {
   PostVisibility,
   Profile,
 } from "@/lib/types";
-import { getStore, uid } from "../mock/store";
+import { getStore, loadStore, uid } from "../mock/store";
 import { getProfile, requireSession } from "./helpers";
 import { getSessionProfile } from "./profiles";
 
@@ -57,7 +57,7 @@ function enrich(post: Post, viewerId?: string | null): Post {
 
 export async function listFeed(): Promise<Post[]> {
   const viewer = await getSessionProfile();
-  return getStore()
+  return (await loadStore())
     .posts.filter((p) => canViewPost(p, viewer))
     .map((p) => enrich(p, viewer?.id))
     .sort(
@@ -71,7 +71,7 @@ export async function listArticles(): Promise<Post[]> {
 }
 
 export async function getPost(id: string): Promise<Post | null> {
-  const post = getStore().posts.find((p) => p.id === id);
+  const post = (await loadStore()).posts.find((p) => p.id === id);
   if (!post) return null;
   const viewer = await getSessionProfile();
   if (!canViewPost(post, viewer)) return null;
@@ -79,7 +79,7 @@ export async function getPost(id: string): Promise<Post | null> {
 }
 
 export async function listLikes(postId: string): Promise<PostLike[]> {
-  return getStore()
+  return (await loadStore())
     .postLikes.filter((l) => l.post_id === postId)
     .map((l) => ({ ...l, profile: getProfile(l.profile_id) ?? undefined }))
     .sort(
@@ -89,7 +89,7 @@ export async function listLikes(postId: string): Promise<PostLike[]> {
 }
 
 export async function listComments(postId: string): Promise<PostComment[]> {
-  return getStore()
+  return (await loadStore())
     .postComments.filter((c) => c.post_id === postId)
     .map((c) => ({ ...c, author: getProfile(c.author_id) ?? undefined }))
     .sort(
@@ -100,7 +100,7 @@ export async function listComments(postId: string): Promise<PostComment[]> {
 
 export async function toggleLike(postId: string): Promise<Post> {
   const session = await requireSession();
-  const store = getStore();
+  const store = (await loadStore());
   const post = store.posts.find((p) => p.id === postId);
   if (!post || !canViewPost(post, session)) {
     throw new Error("Post no encontrado");
@@ -126,7 +126,7 @@ export async function addComment(
   body: string,
 ): Promise<PostComment> {
   const session = await requireSession();
-  const store = getStore();
+  const store = (await loadStore());
   const post = store.posts.find((p) => p.id === postId);
   if (!post || !canViewPost(post, session)) {
     throw new Error("Post no encontrado");
@@ -183,6 +183,6 @@ export async function createPost(input: {
     created_at: new Date().toISOString(),
   };
 
-  getStore().posts.unshift(post);
+  (await loadStore()).posts.unshift(post);
   return enrich(post, session.id);
 }

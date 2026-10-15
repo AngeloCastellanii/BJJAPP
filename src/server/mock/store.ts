@@ -62,6 +62,24 @@ declare global {
 
 const STORE_VERSION = 11;
 
+let memory: MockStore | null = null;
+
+export function getStore(): MockStore {
+  if (!memory || globalThis.__bjjMockStoreVersion !== STORE_VERSION) {
+    memory = cloneStore();
+    globalThis.__bjjMockStore = memory;
+    globalThis.__bjjMockStoreVersion = STORE_VERSION;
+  }
+  return memory;
+}
+
+export async function loadStore(): Promise<MockStore> {
+  const store = getStore();
+  const { refreshStore } = await import("./persist");
+  await refreshStore(store);
+  return store;
+}
+
 function cloneStore(): MockStore {
   return {
     academies: structuredClone(seedAcademies),
@@ -82,20 +100,11 @@ function cloneStore(): MockStore {
   };
 }
 
-export function getStore(): MockStore {
-  if (
-    !globalThis.__bjjMockStore ||
-    globalThis.__bjjMockStoreVersion !== STORE_VERSION
-  ) {
-    globalThis.__bjjMockStore = cloneStore();
-    globalThis.__bjjMockStoreVersion = STORE_VERSION;
-  }
-  return globalThis.__bjjMockStore;
-}
-
 export function resetStore() {
-  globalThis.__bjjMockStore = cloneStore();
-  return globalThis.__bjjMockStore;
+  memory = cloneStore();
+  globalThis.__bjjMockStore = memory;
+  globalThis.__bjjMockStoreVersion = STORE_VERSION;
+  return memory;
 }
 
 export function uid(prefix: string) {

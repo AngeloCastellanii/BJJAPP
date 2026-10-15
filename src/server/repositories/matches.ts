@@ -1,7 +1,7 @@
 "use server";
 
 import type { Match } from "@/lib/types";
-import { getStore, uid } from "../mock/store";
+import { loadStore, uid } from "../mock/store";
 import { getProfile, requireSession } from "./helpers";
 
 function enrich(m: Match): Match {
@@ -15,7 +15,7 @@ function enrich(m: Match): Match {
 
 export async function listMyMatches(): Promise<Match[]> {
   const session = await requireSession();
-  return getStore()
+  return (await loadStore())
     .matches.filter(
       (m) =>
         m.challenger_id === session.id || m.opponent_id === session.id,
@@ -55,7 +55,7 @@ export async function challengeMatch(input: {
     updated_at: new Date().toISOString(),
   };
 
-  getStore().matches.push(match);
+  (await loadStore()).matches.push(match);
   return enrich(match);
 }
 
@@ -64,7 +64,7 @@ export async function respondMatch(
   action: "accepted" | "rejected" | "cancelled",
 ): Promise<Match> {
   const session = await requireSession();
-  const store = getStore();
+  const store = (await loadStore());
   const idx = store.matches.findIndex((m) => m.id === id);
   if (idx < 0) throw new Error("Pelea no encontrada");
 
@@ -97,7 +97,7 @@ export async function completeMatch(
   notes?: string,
 ): Promise<Match> {
   const session = await requireSession();
-  const store = getStore();
+  const store = (await loadStore());
   const idx = store.matches.findIndex((m) => m.id === id);
   if (idx < 0) throw new Error("Pelea no encontrada");
 

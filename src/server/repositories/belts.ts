@@ -2,7 +2,8 @@
 
 import type { Belt, BeltPromotion, Profile } from "@/lib/types";
 import { canPromoteBelts, canVerifyBelts } from "@/lib/roles";
-import { getStore, uid } from "../mock/store";
+import { flushPersist } from "../mock/persist";
+import { loadStore, uid } from "../mock/store";
 import { getProfile, requireSession, withAcademy } from "./helpers";
 
 export async function verifyBelt(profileId: string): Promise<Profile> {
@@ -11,7 +12,7 @@ export async function verifyBelt(profileId: string): Promise<Profile> {
     throw new Error("Solo entrenador o superior puede verificar cinturones");
   }
 
-  const store = getStore();
+  const store = (await loadStore());
   const target = store.profiles.find((p) => p.id === profileId);
   if (!target) throw new Error("Alumno no encontrado");
   if (!session.academy_id || target.academy_id !== session.academy_id) {
@@ -22,6 +23,7 @@ export async function verifyBelt(profileId: string): Promise<Profile> {
   target.belt_verified_by = session.id;
   target.belt_verified_at = new Date().toISOString();
   target.updated_at = new Date().toISOString();
+  await flushPersist();
   return withAcademy(target);
 }
 
@@ -33,10 +35,10 @@ export async function promoteBelt(input: {
 }): Promise<BeltPromotion> {
   const session = await requireSession();
   if (!canPromoteBelts(session.role)) {
-    throw new Error("Solo Master o Dueño puede registrar pases de grado");
+    throw new Error("No tienes permiso para registrar pases de grado");
   }
 
-  const store = getStore();
+  const store = (await loadStore());
   const idx = store.profiles.findIndex((p) => p.id === input.profile_id);
   if (idx < 0) throw new Error("Alumno no encontrado");
 
@@ -68,6 +70,7 @@ export async function promoteBelt(input: {
     updated_at: new Date().toISOString(),
   };
   store.beltPromotions.push(promo);
+  await flushPersist();
 
   return {
     ...promo,
@@ -79,7 +82,7 @@ export async function promoteBelt(input: {
 export async function listBeltPromotions(
   profileId?: string,
 ): Promise<BeltPromotion[]> {
-  const store = getStore();
+  const store = (await loadStore());
   return store.beltPromotions
     .filter((p) => !profileId || p.profile_id === profileId)
     .map((p) => ({

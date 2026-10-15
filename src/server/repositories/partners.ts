@@ -1,7 +1,7 @@
 "use server";
 
 import type { Partnership } from "@/lib/types";
-import { getStore, uid } from "../mock/store";
+import { loadStore, uid } from "../mock/store";
 import { getProfile, requireSession } from "./helpers";
 
 function enrich(p: Partnership): Partnership {
@@ -14,7 +14,7 @@ function enrich(p: Partnership): Partnership {
 
 export async function listMyPartnerships(): Promise<Partnership[]> {
   const session = await requireSession();
-  const store = getStore();
+  const store = (await loadStore());
   return store.partnerships
     .filter(
       (p) =>
@@ -33,7 +33,7 @@ export async function invitePartner(addresseeId: string): Promise<Partnership> {
     throw new Error("No puedes invitarte a ti mismo");
   }
 
-  const store = getStore();
+  const store = (await loadStore());
   if (!getProfile(addresseeId)) throw new Error("Usuario no encontrado");
 
   const existing = store.partnerships.find(
@@ -64,7 +64,7 @@ export async function respondPartnership(
   action: "accepted" | "rejected" | "cancelled",
 ): Promise<Partnership> {
   const session = await requireSession();
-  const store = getStore();
+  const store = (await loadStore());
   const idx = store.partnerships.findIndex((p) => p.id === id);
   if (idx < 0) throw new Error("Invitación no encontrada");
 
@@ -99,7 +99,7 @@ export async function listAcceptedPartners() {
 
 export async function endPartnership(id: string): Promise<Partnership> {
   const session = await requireSession();
-  const store = getStore();
+  const store = (await loadStore());
   const idx = store.partnerships.findIndex((p) => p.id === id);
   if (idx < 0) throw new Error("Relación no encontrada");
 

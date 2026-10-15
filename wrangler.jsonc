@@ -8,6 +8,12 @@
     "directory": ".open-next/assets",
     "binding": "ASSETS"
   },
+  "kv_namespaces": [
+    {
+      "binding": "BJJ_DATA",
+      "id": "f824a1b2f46a47f59514357b9726d031"
+    }
+  ],
   "services": [
     {
       "binding": "WORKER_SELF_REFERENCE",

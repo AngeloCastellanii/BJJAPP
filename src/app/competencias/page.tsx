@@ -28,7 +28,7 @@ export default async function CompetenciasPage() {
       <PageHeader
         eyebrow="Competir"
         title="Competencias y topes"
-        description="Solo Master y Dueño pueden organizar estos encuentros."
+        description="Encuentros para competir y medir el nivel."
         action={
           <CreateGatheringForm
             defaultType="competition"

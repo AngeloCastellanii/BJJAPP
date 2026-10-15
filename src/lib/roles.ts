@@ -7,6 +7,12 @@ export const ROLE_LABELS: Record<UserRole, string> = {
   owner: "Dueño / Superadmin",
 };
 
+/** El rol de plataforma solo lo ve quien lo tiene, en su propio perfil. */
+export function roleLabel(role: UserRole, revealOwner = false) {
+  if (role === "owner" && !revealOwner) return "Miembro";
+  return ROLE_LABELS[role];
+}
+
 export const ROLE_RANK: Record<UserRole, number> = {
   user: 1,
   coach: 2,

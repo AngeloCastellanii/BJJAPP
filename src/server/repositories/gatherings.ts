@@ -7,7 +7,7 @@ import type {
   GatheringType,
   Profile,
 } from "@/lib/types";
-import { getStore, uid } from "../mock/store";
+import { getStore, loadStore, uid } from "../mock/store";
 import { getAcademy, getProfile, requireSession, withAcademy } from "./helpers";
 
 export { gatheringPath };
@@ -35,7 +35,7 @@ export async function listGatherings(options?: {
   types?: GatheringType[];
   archived?: boolean;
 }): Promise<Gathering[]> {
-  const store = getStore();
+  const store = (await loadStore());
   return store.gatherings
     .filter((g) => {
       if (options?.type && g.type !== options.type) return false;
@@ -51,7 +51,7 @@ export async function listGatherings(options?: {
 }
 
 export async function getGathering(id: string): Promise<Gathering | null> {
-  const g = getStore().gatherings.find((item) => item.id === id);
+  const g = (await loadStore()).gatherings.find((item) => item.id === id);
   return g ? enrich(g) : null;
 }
 
@@ -70,7 +70,7 @@ export async function createGathering(input: {
   if (!canOrganizeType(session.role, input.type)) {
     throw new Error("Tu rol no puede organizar este tipo de encuentro");
   }
-  const store = getStore();
+  const store = (await loadStore());
 
   const gathering: Gathering = {
     id: uid("gath"),
@@ -109,7 +109,7 @@ export async function inviteAcademyToGathering(
   academyId: string,
 ): Promise<number> {
   const session = await requireSession();
-  const store = getStore();
+  const store = (await loadStore());
   const gathering = store.gatherings.find((g) => g.id === gatheringId);
   if (!gathering) throw new Error("Encuentro no encontrado");
   if (gathering.host_id !== session.id) {
@@ -144,7 +144,7 @@ export async function inviteAcademyToGathering(
 
 export async function joinGathering(id: string): Promise<Gathering> {
   const session = await requireSession();
-  const store = getStore();
+  const store = (await loadStore());
   const gathering = store.gatherings.find((g) => g.id === id);
   if (!gathering) throw new Error("Encuentro no encontrado");
   if (gathering.status === "archived" || gathering.status === "cancelled") {
@@ -179,7 +179,7 @@ export async function joinGathering(id: string): Promise<Gathering> {
 
 export async function cancelGathering(id: string): Promise<Gathering> {
   const session = await requireSession();
-  const store = getStore();
+  const store = (await loadStore());
   const gathering = store.gatherings.find((g) => g.id === id);
   if (!gathering) throw new Error("Encuentro no encontrado");
   if (gathering.host_id !== session.id) {
@@ -194,7 +194,7 @@ export async function cancelGathering(id: string): Promise<Gathering> {
 
 export async function leaveGathering(id: string): Promise<Gathering> {
   const session = await requireSession();
-  const store = getStore();
+  const store = (await loadStore());
   const gathering = store.gatherings.find((g) => g.id === id);
   if (!gathering) throw new Error("Encuentro no encontrado");
   if (gathering.host_id === session.id) {
@@ -214,7 +214,7 @@ export async function inviteToGathering(
   profileId: string,
 ): Promise<GatheringParticipant> {
   const session = await requireSession();
-  const store = getStore();
+  const store = (await loadStore());
   const gathering = store.gatherings.find((g) => g.id === gatheringId);
   if (!gathering) throw new Error("Encuentro no encontrado");
   if (gathering.host_id !== session.id) {
@@ -246,7 +246,7 @@ export async function listGatheringInviteCandidates(
   gatheringId: string,
 ): Promise<Profile[]> {
   const session = await requireSession();
-  const store = getStore();
+  const store = (await loadStore());
   const gathering = store.gatherings.find((g) => g.id === gatheringId);
   if (!gathering) throw new Error("Encuentro no encontrado");
   if (gathering.host_id !== session.id) {
@@ -297,7 +297,7 @@ export async function respondGatheringInvite(
   action: "joined" | "declined",
 ): Promise<Gathering> {
   const session = await requireSession();
-  const store = getStore();
+  const store = (await loadStore());
   const participant = store.gatheringParticipants.find(
     (p) => p.gathering_id === gatheringId && p.profile_id === session.id,
   );

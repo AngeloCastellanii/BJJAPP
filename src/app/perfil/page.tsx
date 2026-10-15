@@ -53,7 +53,7 @@ export default async function PerfilPage() {
         <div className="space-y-4 px-5 py-5">
           <div className="flex flex-wrap items-center gap-2">
             <BeltBadge belt={session.belt} stripes={session.stripes} />
-            <RoleBadge role={session.role} />
+            <RoleBadge role={session.role} revealOwner />
             {session.belt_verified ? (
               <span className="inline-flex items-center gap-1 rounded-lg bg-success/10 px-2 py-1 text-[11px] font-medium text-success">
                 <BadgeCheck className="h-3.5 w-3.5" />

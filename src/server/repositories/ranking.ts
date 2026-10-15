@@ -1,7 +1,7 @@
 "use server";
 
 import type { RankingEntry, RankingPeriod } from "@/lib/types";
-import { getStore } from "../mock/store";
+import { loadStore } from "../mock/store";
 import { getProfile, requireSession } from "./helpers";
 
 function startOfWeek(date: Date) {
@@ -20,7 +20,7 @@ function startOfMonth(date: Date) {
 export async function getRanking(
   period: RankingPeriod,
 ): Promise<RankingEntry[]> {
-  const store = getStore();
+  const store = (await loadStore());
   const now = new Date();
   let from: Date | null = null;
 

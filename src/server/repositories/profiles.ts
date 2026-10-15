@@ -6,7 +6,8 @@ import { avatarFallback } from "@/lib/media";
 import { hashPassword } from "@/lib/password";
 import type { Belt, Profile } from "@/lib/types";
 import { DEMO_USER_ID } from "../mock/seed";
-import { getStore, uid } from "../mock/store";
+import { flushPersist } from "../mock/persist";
+import { loadStore, uid } from "../mock/store";
 import { clearSessionCookie, writeSessionCookie } from "../session";
 import {
   getProfile,
@@ -17,7 +18,7 @@ import {
 
 export async function getSessionProfile(): Promise<Profile | null> {
   await syncSessionFromCookie();
-  const store = getStore();
+  const store = (await loadStore());
   if (!store.sessionUserId) return null;
   return getProfile(store.sessionUserId);
 }
@@ -48,9 +49,10 @@ function blankProfile(id: string, email: string, role: Profile["role"]): Profile
 }
 
 async function startSession(profile: Profile) {
-  const store = getStore();
+  const store = (await loadStore());
   store.sessionUserId = profile.id;
   await writeSessionCookie(profile.id);
+  await flushPersist();
   return { ok: true as const, profile: withAcademy(profile) };
 }
 
@@ -64,7 +66,7 @@ export async function signInWithPassword(
   }
 
   const creds = getAuthCredentials();
-  const store = getStore();
+  const store = (await loadStore());
 
   if (creds.configured && normalized === creds.email) {
     if (password !== creds.password) {
@@ -117,7 +119,7 @@ export async function signUpWithPassword(
     };
   }
 
-  const store = getStore();
+  const store = (await loadStore());
   if (store.accounts.some((a) => a.email === normalized)) {
     return { ok: false, error: "Ese correo ya está registrado" };
   }
@@ -136,7 +138,7 @@ export async function signUpWithPassword(
 
 export async function skipOnboarding(): Promise<Profile> {
   const session = await requireSession();
-  const store = getStore();
+  const store = (await loadStore());
   const idx = store.profiles.findIndex((p) => p.id === session.id);
   if (idx < 0) throw new Error("Perfil no encontrado");
   const current = store.profiles[idx];
@@ -151,6 +153,7 @@ export async function skipOnboarding(): Promise<Profile> {
     onboarding_completed: true,
     updated_at: new Date().toISOString(),
   };
+  await flushPersist();
   return withAcademy(store.profiles[idx]);
 }
 
@@ -165,7 +168,7 @@ export async function completeOnboarding(input: {
   bio?: string;
 }): Promise<Profile> {
   const session = await requireSession();
-  const store = getStore();
+  const store = (await loadStore());
   const idx = store.profiles.findIndex((p) => p.id === session.id);
   if (idx < 0) throw new Error("Perfil no encontrado");
 
@@ -225,18 +228,19 @@ export async function completeOnboarding(input: {
     }
   }
 
+  await flushPersist();
   return withAcademy(store.profiles[idx]);
 }
 
 export async function signOut(): Promise<void> {
-  getStore().sessionUserId = null;
+  (await loadStore()).sessionUserId = null;
   await clearSessionCookie();
 }
 
 export async function getProfileByUsername(
   username: string,
 ): Promise<Profile | null> {
-  const store = getStore();
+  const store = (await loadStore());
   const profile = store.profiles.find(
     (p) => p.username.toLowerCase() === username.toLowerCase(),
   );
@@ -254,7 +258,7 @@ export async function updateProfile(input: {
   avatar_url?: string | null;
 }): Promise<Profile> {
   const session = await requireSession();
-  const store = getStore();
+  const store = (await loadStore());
   const idx = store.profiles.findIndex((p) => p.id === session.id);
   if (idx < 0) throw new Error("Perfil no encontrado");
 
@@ -291,6 +295,7 @@ export async function updateProfile(input: {
     updated_at: new Date().toISOString(),
   };
 
+  await flushPersist();
   return withAcademy(store.profiles[idx]);
 }
 
@@ -298,7 +303,7 @@ export async function discoverNearby(limit = 20): Promise<
   Array<Profile & { distance_km: number | null }>
 > {
   const session = await requireSession();
-  const store = getStore();
+  const store = (await loadStore());
   const partnerIds = new Set(
     store.partnerships
       .filter(

@@ -46,7 +46,7 @@ export default async function PublicProfilePage({
         <div className="space-y-4 px-5 py-5">
           <div className="flex flex-wrap items-center gap-2">
             <BeltBadge belt={profile.belt} stripes={profile.stripes} />
-            <RoleBadge role={profile.role} />
+            <RoleBadge role={profile.role} revealOwner={isSelf} />
             {profile.belt_verified ? (
               <span className="inline-flex items-center gap-1 rounded-lg bg-success/10 px-2 py-1 text-[11px] font-medium text-success">
                 <BadgeCheck className="h-3.5 w-3.5" />

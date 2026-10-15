@@ -1,7 +1,14 @@
 import { ROLE_LABELS } from "@/lib/roles";
 import type { UserRole } from "@/lib/types";
 
-export function RoleBadge({ role }: { role: UserRole }) {
+export function RoleBadge({
+  role,
+  revealOwner = false,
+}: {
+  role: UserRole;
+  revealOwner?: boolean;
+}) {
+  if (role === "owner" && !revealOwner) return null;
   return (
     <span className="inline-flex items-center rounded-lg bg-surface-2 px-2 py-1 text-[11px] font-medium text-muted">
       {ROLE_LABELS[role]}

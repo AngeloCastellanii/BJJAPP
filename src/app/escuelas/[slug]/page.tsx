@@ -11,7 +11,7 @@ import { AcademyBadge } from "@/components/profile/academy-badge";
 import { Avatar } from "@/components/profile/avatar";
 import { RoleBadge } from "@/components/profile/role-badge";
 import { SoftPanel } from "@/components/ui/card";
-import { ROLE_LABELS, canSuperadmin, roleAtLeast } from "@/lib/roles";
+import { canSuperadmin, roleAtLeast, roleLabel } from "@/lib/roles";
 import {
   getAcademyById,
   listAcademyMembers,
@@ -171,11 +171,16 @@ export default async function EscuelaDetailPage({
                     {m.profile?.display_name}
                   </p>
                   <p className="text-xs text-muted">
-                    {ROLE_LABELS[m.role_in_academy]}
+                    {roleLabel(m.role_in_academy, m.profile_id === session.id)}
                   </p>
                 </div>
               </Link>
-              {m.profile ? <RoleBadge role={m.role_in_academy} /> : null}
+              {m.profile ? (
+                <RoleBadge
+                  role={m.role_in_academy}
+                  revealOwner={m.profile_id === session.id}
+                />
+              ) : null}
             </div>
           ))}
         </SoftPanel>

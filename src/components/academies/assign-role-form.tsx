@@ -28,7 +28,7 @@ export function AssignRoleForm({
       <div>
         <p className="font-medium">Asignar rol / puesto</p>
         <p className="mt-0.5 text-sm text-muted">
-          Solo superadmin. Define gimnasio y cargo de cada persona.
+          Define academia y cargo de cada persona.
         </p>
       </div>
       <form

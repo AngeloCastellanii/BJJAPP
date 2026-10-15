@@ -8,7 +8,8 @@ import type {
   Profile,
   UserRole,
 } from "@/lib/types";
-import { getStore, uid } from "../mock/store";
+import { flushPersist } from "../mock/persist";
+import { getStore, loadStore, uid } from "../mock/store";
 import { getProfile, requireSession, withAcademy } from "./helpers";
 
 function slugify(value: string) {
@@ -38,7 +39,7 @@ function enrichMembership(m: AcademyMembership): AcademyMembership {
 }
 
 export async function listAcademies(): Promise<Academy[]> {
-  return getStore()
+  return (await loadStore())
     .academies.filter((a) => (a.status ?? "approved") === "approved")
     .map(enrichAcademy)
     .sort((a, b) => a.name.localeCompare(b.name));
@@ -47,20 +48,20 @@ export async function listAcademies(): Promise<Academy[]> {
 export async function listPendingAcademies(): Promise<Academy[]> {
   const session = await requireSession();
   if (!canSuperadmin(session.role)) return [];
-  return getStore()
+  return (await loadStore())
     .academies.filter((a) => a.status === "pending")
     .map(enrichAcademy);
 }
 
 export async function getAcademyById(id: string): Promise<Academy | null> {
-  const a = getStore().academies.find((x) => x.id === id || x.slug === id);
+  const a = (await loadStore()).academies.find((x) => x.id === id || x.slug === id);
   return a ? enrichAcademy(a) : null;
 }
 
 export async function listAcademyMembers(
   academyId: string,
 ): Promise<AcademyMembership[]> {
-  return getStore()
+  return (await loadStore())
     .memberships.filter(
       (m) => m.academy_id === academyId && m.status === "accepted",
     )
@@ -71,7 +72,7 @@ export async function listAcademyMembers(
 export async function listAcademyPending(
   academyId: string,
 ): Promise<AcademyMembership[]> {
-  return getStore()
+  return (await loadStore())
     .memberships.filter(
       (m) => m.academy_id === academyId && m.status === "pending",
     )
@@ -80,7 +81,7 @@ export async function listAcademyPending(
 
 export async function listMyMemberships(): Promise<AcademyMembership[]> {
   const session = await requireSession();
-  return getStore()
+  return (await loadStore())
     .memberships.filter((m) => m.profile_id === session.id)
     .map(enrichMembership)
     .sort(
@@ -93,7 +94,7 @@ export async function requestJoinAcademy(
   academyId: string,
 ): Promise<AcademyMembership> {
   const session = await requireSession();
-  const store = getStore();
+  const store = (await loadStore());
   const academy = store.academies.find((a) => a.id === academyId);
   if (!academy) throw new Error("Escuela no encontrada");
 
@@ -110,6 +111,7 @@ export async function requestJoinAcademy(
   if (existing) {
     existing.status = "pending";
     existing.updated_at = new Date().toISOString();
+    await flushPersist();
     return enrichMembership(existing);
   }
 
@@ -123,6 +125,7 @@ export async function requestJoinAcademy(
     updated_at: new Date().toISOString(),
   };
   store.memberships.push(membership);
+  await flushPersist();
   return enrichMembership(membership);
 }
 
@@ -131,7 +134,7 @@ export async function respondAcademyInvite(
   action: "accepted" | "rejected" | "cancelled",
 ): Promise<AcademyMembership> {
   const session = await requireSession();
-  const store = getStore();
+  const store = (await loadStore());
   const idx = store.memberships.findIndex((m) => m.id === membershipId);
   if (idx < 0) throw new Error("Invitación no encontrada");
 
@@ -176,6 +179,7 @@ export async function respondAcademyInvite(
     }
   }
 
+  await flushPersist();
   return enrichMembership(store.memberships[idx]);
 }
 
@@ -184,7 +188,7 @@ export async function inviteToAcademy(
   profileId: string,
 ): Promise<AcademyMembership> {
   const session = await requireSession();
-  const store = getStore();
+  const store = (await loadStore());
   const academy = store.academies.find((a) => a.id === academyId);
   if (!academy) throw new Error("Escuela no encontrada");
 
@@ -206,6 +210,7 @@ export async function inviteToAcademy(
   if (existing) {
     existing.status = "pending";
     existing.updated_at = new Date().toISOString();
+    await flushPersist();
     return enrichMembership(existing);
   }
 
@@ -219,12 +224,13 @@ export async function inviteToAcademy(
     updated_at: new Date().toISOString(),
   };
   store.memberships.push(membership);
+  await flushPersist();
   return enrichMembership(membership);
 }
 
 export async function leaveAcademy(academyId: string): Promise<void> {
   const session = await requireSession();
-  const store = getStore();
+  const store = (await loadStore());
   const membership = store.memberships.find(
     (m) =>
       m.academy_id === academyId &&
@@ -233,7 +239,7 @@ export async function leaveAcademy(academyId: string): Promise<void> {
   );
   if (!membership) throw new Error("No perteneces a esta escuela");
   if (membership.role_in_academy === "owner") {
-    throw new Error("El dueño no puede abandonar la academia");
+    throw new Error("Quien administra la academia no puede abandonarla");
   }
   membership.status = "cancelled";
   membership.updated_at = new Date().toISOString();
@@ -246,13 +252,14 @@ export async function leaveAcademy(academyId: string): Promise<void> {
       updated_at: new Date().toISOString(),
     };
   }
+  await flushPersist();
 }
 
 export async function listInviteableProfiles(
   academyId: string,
 ): Promise<Profile[]> {
   await requireSession();
-  const store = getStore();
+  const store = (await loadStore());
   const memberIds = new Set(
     store.memberships
       .filter(
@@ -278,7 +285,7 @@ export async function createAcademy(input: {
 }): Promise<Academy> {
   const session = await requireSession();
   if (!canSuperadmin(session.role)) {
-    throw new Error("Solo el superadmin puede crear gimnasios");
+    throw new Error("No tienes permiso para crear una academia");
   }
 
   const name = input.name.trim();
@@ -286,14 +293,14 @@ export async function createAcademy(input: {
   const city = input.city.trim();
   if (!city) throw new Error("La ciudad es obligatoria");
 
-  const store = getStore();
+  const store = (await loadStore());
   let slug = slugify(name) || uid("gym");
   if (store.academies.some((a) => a.slug === slug)) {
     slug = `${slug}-${uid("x").slice(-4)}`;
   }
 
   const ownerId = input.owner_id || session.id;
-  if (!getProfile(ownerId)) throw new Error("Dueño no encontrado");
+  if (!getProfile(ownerId)) throw new Error("Persona no encontrada");
 
   const academy: Academy = {
     id: uid("acad"),
@@ -338,6 +345,7 @@ export async function createAcademy(input: {
     };
   }
 
+  await flushPersist();
   return enrichAcademy(academy);
 }
 
@@ -352,7 +360,7 @@ export async function requestAcademy(input: {
   if (!name) throw new Error("El nombre es obligatorio");
   if (!city) throw new Error("La ciudad es obligatoria");
 
-  const store = getStore();
+  const store = (await loadStore());
   const already = store.academies.find(
     (a) =>
       a.requested_by === session.id &&
@@ -382,6 +390,7 @@ export async function requestAcademy(input: {
     created_at: new Date().toISOString(),
   };
   store.academies.push(academy);
+  await flushPersist();
   return enrichAcademy(academy);
 }
 
@@ -391,9 +400,9 @@ export async function reviewAcademyRequest(
 ): Promise<void> {
   const session = await requireSession();
   if (!canSuperadmin(session.role)) {
-    throw new Error("Solo el superadmin puede revisar solicitudes");
+    throw new Error("No tienes permiso para revisar solicitudes");
   }
-  const store = getStore();
+  const store = (await loadStore());
   const idx = store.academies.findIndex((a) => a.id === academyId);
   if (idx < 0) throw new Error("Solicitud no encontrada");
   const academy = store.academies[idx];
@@ -401,6 +410,7 @@ export async function reviewAcademyRequest(
 
   if (action === "rejected") {
     store.academies[idx] = { ...academy, status: "rejected" };
+    await flushPersist();
     return;
   }
 
@@ -410,7 +420,10 @@ export async function reviewAcademyRequest(
     status: "approved",
     owner_id: ownerId,
   };
-  if (!ownerId) return;
+  if (!ownerId) {
+    await flushPersist();
+    return;
+  }
 
   const existing = store.memberships.find(
     (m) => m.academy_id === academy.id && m.profile_id === ownerId,
@@ -434,6 +447,7 @@ export async function reviewAcademyRequest(
       updated_at: new Date().toISOString(),
     };
   }
+  await flushPersist();
 }
 
 export async function assignMemberRole(input: {
@@ -443,14 +457,14 @@ export async function assignMemberRole(input: {
 }): Promise<Profile> {
   const session = await requireSession();
   if (!canSuperadmin(session.role)) {
-    throw new Error("Solo el superadmin puede asignar roles");
+    throw new Error("No tienes permiso para asignar roles");
   }
 
-  const store = getStore();
+  const store = (await loadStore());
   const pIdx = store.profiles.findIndex((p) => p.id === input.profile_id);
   if (pIdx < 0) throw new Error("Persona no encontrada");
   if (input.profile_id === session.id && input.role !== "owner") {
-    throw new Error("No puedes quitarte el rol de superadmin");
+    throw new Error("No puedes quitarte ese rol");
   }
 
   const academyId =
@@ -494,6 +508,7 @@ export async function assignMemberRole(input: {
     updated_at: new Date().toISOString(),
   };
 
+  await flushPersist();
   return withAcademy(store.profiles[pIdx]);
 }
 
@@ -503,14 +518,14 @@ export async function updateAcademyAppearance(input: {
   badge_color?: string;
 }): Promise<Academy> {
   const session = await requireSession();
-  const store = getStore();
+  const store = (await loadStore());
   const idx = store.academies.findIndex((a) => a.id === input.academy_id);
   if (idx < 0) throw new Error("Academia no encontrada");
 
   const academy = store.academies[idx];
   const isOwner = academy.owner_id === session.id;
   if (!isOwner && !canSuperadmin(session.role)) {
-    throw new Error("Solo el dueño puede editar el distintivo");
+    throw new Error("No puedes editar el distintivo");
   }
 
   store.academies[idx] = {
@@ -518,15 +533,16 @@ export async function updateAcademyAppearance(input: {
     badge_label: input.badge_label?.trim() || academy.badge_label,
     badge_color: input.badge_color?.trim() || academy.badge_color,
   };
+  await flushPersist();
   return enrichAcademy(store.academies[idx]);
 }
 
 export async function listAllProfiles(): Promise<Profile[]> {
   const session = await requireSession();
   if (!canSuperadmin(session.role)) {
-    throw new Error("Solo el superadmin puede listar todos los perfiles");
+    throw new Error("No tienes permiso para ver esa lista");
   }
-  return getStore()
+  return (await loadStore())
     .profiles.map(withAcademy)
     .sort((a, b) => a.display_name.localeCompare(b.display_name));
 }

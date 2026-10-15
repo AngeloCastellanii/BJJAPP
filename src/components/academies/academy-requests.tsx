@@ -52,7 +52,7 @@ export function RequestAcademyForm() {
       >
         <p className="font-display text-xl tracking-tight">Solicitar academia</p>
         <p className="text-sm text-muted">
-          El superadmin revisa la solicitud antes de publicarla.
+          La revisamos antes de publicarla.
         </p>
         <div>
           <Label htmlFor="req_name">Nombre</Label>
