@@ -25,7 +25,7 @@ export async function signInAsDemo(): Promise<Profile> {
   store.sessionUserId = DEMO_USER_ID;
   await writeSessionCookie(DEMO_USER_ID);
   const profile = getProfile(DEMO_USER_ID);
-  if (!profile) throw new Error("Usuario demo no disponible");
+  if (!profile) throw new Error("Usuario no disponible");
   return profile;
 }
 

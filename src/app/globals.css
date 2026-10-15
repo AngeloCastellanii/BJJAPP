@@ -10,6 +10,7 @@
   --accent: #161616;
   --accent-soft: #16161612;
   --accent-fg: #ffffff;
+  --on-accent: #ffffff;
   --success: #1f7a55;
   --warning: #b45309;
   --danger: #b42318;
@@ -26,6 +27,7 @@
   --color-accent: var(--accent);
   --color-accent-soft: var(--accent-soft);
   --color-accent-fg: var(--accent-fg);
+  --color-on-accent: var(--on-accent);
   --color-success: var(--success);
   --color-warning: var(--warning);
   --color-danger: var(--danger);

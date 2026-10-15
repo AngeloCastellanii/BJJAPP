@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 
-export const SESSION_COOKIE = "matlink_session";
+export const SESSION_COOKIE = "bjjapp_session";
 
 export async function readSessionCookie(): Promise<string | null> {
   const jar = await cookies();

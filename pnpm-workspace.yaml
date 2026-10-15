@@ -1,3 +1,13 @@
+nodeLinker: hoisted
+
 allowBuilds:
+  esbuild: true
+  workerd: true
   sharp: false
   unrs-resolver: false
+
+supportedArchitectures:
+  os:
+    - current
+  cpu:
+    - current

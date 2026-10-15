@@ -14,7 +14,7 @@ import { getSessionProfile } from "@/server/repositories/profiles";
 import { Users } from "lucide-react";
 import Link from "next/link";
 
-export const metadata = { title: "Partners" };
+export const metadata = { title: "Amigos" };
 
 export default async function PartnersPage() {
   const session = await getSessionProfile();
@@ -33,9 +33,9 @@ export default async function PartnersPage() {
   return (
     <div className="space-y-8">
       <PageHeader
-        eyebrow="Red"
-        title="Partners"
-        description="Invitaciones y compañeros de entrenamiento."
+        eyebrow="Comunidad"
+        title="Amigos"
+        description="Personas con las que entrenas y compartes el tatami."
       />
 
       <section>
@@ -69,7 +69,7 @@ export default async function PartnersPage() {
                       <p className="text-sm text-muted">
                         {role === "requester"
                           ? "Invitación enviada"
-                          : "Quiere ser tu partner"}
+                          : "Quiere conectar contigo"}
                       </p>
                     </div>
                   </div>
@@ -82,11 +82,11 @@ export default async function PartnersPage() {
       </section>
 
       <section>
-        <h2 className="mb-3 px-1 text-sm font-medium text-muted">Activos</h2>
+        <h2 className="mb-3 px-1 text-sm font-medium text-muted">Tus amigos</h2>
         {accepted.length === 0 ? (
           <EmptyState
-            title="Aún no tienes partners"
-            description="Ve a Descubrir e invita a alguien cerca."
+            title="Aún no tienes amigos aquí"
+            description="Ve a Descubrir y conecta con gente de tu zona o academia."
             icon={<Users className="h-5 w-5" />}
           />
         ) : (

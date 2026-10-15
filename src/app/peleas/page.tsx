@@ -58,7 +58,7 @@ export default async function PeleasPage() {
         {active.length === 0 ? (
           <EmptyState
             title="Sin retos activos"
-            description="Retá a un partner desde Descubrir o Partners."
+            description="Reta a un amigo desde Descubrir o Amigos."
             icon={<Swords className="h-5 w-5" />}
           />
         ) : (

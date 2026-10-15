@@ -80,7 +80,7 @@ export default async function PerfilPage() {
           <div className="flex flex-wrap gap-2 pt-1">
             {[
               { href: "/escuelas", label: "Escuelas" },
-              { href: "/partners", label: "Partners" },
+              { href: "/partners", label: "Amigos" },
               { href: "/peleas", label: "Peleas" },
               { href: `/perfil/${session.username}`, label: "Vista pública" },
             ].map((item) => (

@@ -1,7 +1,7 @@
 {
-  "name": "MatLink",
-  "short_name": "MatLink",
-  "description": "Comunidad de jiu-jitsu: roladas, peleas, partners y ranking.",
+  "name": "BJJApp",
+  "short_name": "BJJApp",
+  "description": "Comunidad de jiu-jitsu: amigos, academia, roladas y ranking.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#F4F4F2",

@@ -16,7 +16,7 @@ const actions = [
   { href: "/eventos", label: "Eventos", icon: CalendarDays },
   { href: "/competencias", label: "Compite", icon: Trophy },
   { href: "/peleas", label: "Peleas", icon: Swords },
-  { href: "/partners", label: "Partners", icon: Users },
+  { href: "/partners", label: "Amigos", icon: Users },
   { href: "/ranking", label: "Ranking", icon: Trophy },
   { href: "/tecnicas", label: "Técnicas", icon: BookOpen },
   { href: "/blog", label: "Blog", icon: Newspaper },

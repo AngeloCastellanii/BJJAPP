@@ -1,4 +1,4 @@
--- MatLink initial schema + RLS
+-- BJJApp initial schema + RLS
 -- Apply in Supabase SQL editor or via supabase db push
 
 create extension if not exists "pgcrypto";

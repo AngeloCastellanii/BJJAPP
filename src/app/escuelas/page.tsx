@@ -20,7 +20,7 @@ import { Users } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
-export const metadata = { title: "Escuelas" };
+export const metadata = { title: "Academia" };
 
 export default async function EscuelasPage() {
   const session = await getSessionProfile();
@@ -49,7 +49,7 @@ export default async function EscuelasPage() {
     <div className="space-y-8">
       <PageHeader
         eyebrow="Academias"
-        title="Escuelas"
+        title="Academia"
         description="Únete a una academia, muestra el distintivo y recibe invitaciones a open mats."
         action={isAdmin ? <CreateAcademyForm /> : undefined}
       />

@@ -16,18 +16,18 @@ export default async function HomePage() {
       <div className="flex min-h-[80dvh] flex-col justify-center gap-10 py-6">
         <div className="animate-rise text-center">
           <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-muted">
-            MatLink
+            BJJApp
           </p>
           <h1 className="mt-3 font-display text-5xl leading-[0.95] tracking-tight md:text-6xl">
             Entrena.
             <br />
-            Conecta.
+            Conoce.
             <br />
-            Compite.
+            Comparte.
           </h1>
           <p className="mx-auto mt-4 max-w-sm text-sm leading-relaxed text-muted">
-            Roladas, partners, peleas y ranking en una app limpia para tu
-            comunidad de jiu-jitsu.
+            Fortalece amistades en el tatami, conoce gente de tu academia y de
+            tu zona, y organiza roladas juntos.
           </p>
         </div>
         <SignInPanel />
@@ -49,7 +49,7 @@ export default async function HomePage() {
         </div>
         <Link
           href="/roladas"
-          className="rounded-2xl bg-accent px-3.5 py-2.5 text-sm font-medium text-accent-fg shadow-soft"
+          className="rounded-2xl bg-accent px-3.5 py-2.5 text-sm font-medium text-white shadow-soft"
         >
           Roladas
         </Link>

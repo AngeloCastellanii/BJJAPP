@@ -43,7 +43,7 @@ export async function invitePartner(addresseeId: string): Promise<Partnership> {
   );
 
   if (existing && (existing.status === "pending" || existing.status === "accepted")) {
-    throw new Error("Ya existe una relación o invitación");
+    throw new Error("Ya son amigos o hay una invitación pendiente");
   }
 
   const partnership: Partnership = {
@@ -108,7 +108,7 @@ export async function endPartnership(id: string): Promise<Partnership> {
     throw new Error("No autorizado");
   }
   if (item.status !== "accepted") {
-    throw new Error("Solo puedes terminar un partnership activo");
+    throw new Error("Solo puedes terminar una amistad activa");
   }
 
   store.partnerships[idx] = {

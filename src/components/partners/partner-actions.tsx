@@ -31,7 +31,7 @@ export function InvitePartnerButton({ profileId }: { profileId: string }) {
           });
         }}
       >
-        Invitar
+        Conectar
       </Button>
       {error ? <p className="mt-1 text-xs text-danger">{error}</p> : null}
     </div>
@@ -120,7 +120,7 @@ export function EndPartnershipButton({ id }: { id: string }) {
           });
         }}
       >
-        Terminar
+        Dejar de ser amigos
       </Button>
       {error ? <p className="mt-1 text-xs text-danger">{error}</p> : null}
     </div>

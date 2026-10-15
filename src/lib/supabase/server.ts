@@ -5,7 +5,7 @@ import { isSupabaseConfigured } from "./config";
 export async function createClient() {
   if (!isSupabaseConfigured()) {
     throw new Error(
-      "Supabase no configurado. Usa el modo demo o define las variables de entorno.",
+      "Supabase no configurado. Define las variables de entorno.",
     );
   }
 

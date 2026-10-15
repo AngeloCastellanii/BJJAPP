@@ -38,7 +38,7 @@ export default async function RoladasPage() {
       {upcoming.length === 0 ? (
         <EmptyState
           title="Sin roladas próximas"
-          description="Crea la primera y avisa a tus partners."
+          description="Crea la primera y avisa a tus amigos."
           icon={<CalendarDays className="h-5 w-5" />}
         />
       ) : (

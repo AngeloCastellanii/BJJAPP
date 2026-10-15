@@ -83,7 +83,7 @@ export default async function RankingPage({
                 className={cn(
                   "flex h-8 w-8 items-center justify-center rounded-xl text-sm font-semibold",
                   index < 3
-                    ? "bg-accent text-accent-fg"
+                    ? "bg-accent text-white"
                     : "bg-surface-2 text-muted",
                 )}
               >

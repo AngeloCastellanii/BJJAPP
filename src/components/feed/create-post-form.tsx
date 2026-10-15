@@ -59,7 +59,7 @@ export function CreatePostForm({
           <span className="flex-1 text-sm text-muted">
             ¿Qué pasó hoy en el tatami?
           </span>
-          <span className="rounded-xl bg-accent px-3 py-1.5 text-xs font-medium text-accent-fg">
+          <span className="rounded-xl bg-accent px-3 py-1.5 text-xs font-medium text-white">
             Publicar
           </span>
         </button>
@@ -157,7 +157,7 @@ export function CreatePostForm({
                   />
                   <button
                     type="button"
-                    className="absolute right-2 top-2 rounded-full bg-foreground/70 p-1 text-accent-fg"
+                    className="absolute right-2 top-2 rounded-full bg-foreground/70 p-1 text-white"
                     onClick={() => {
                       const next = imagesRef.current.filter((_, idx) => idx !== i);
                       imagesRef.current = next;

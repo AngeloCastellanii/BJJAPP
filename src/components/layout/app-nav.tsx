@@ -28,10 +28,9 @@ const more = [
   { href: "/ranking", label: "Ranking", icon: Trophy },
   { href: "/peleas", label: "Peleas", icon: Swords },
   { href: "/competencias", label: "Competencias", icon: Trophy },
-  { href: "/escuelas", label: "Escuelas", icon: Users },
+  { href: "/escuelas", label: "Academia", icon: Users },
   { href: "/open-mats", label: "Open mats", icon: CalendarDays },
-  { href: "/eventos", label: "Eventos", icon: CalendarDays },
-  { href: "/partners", label: "Partners", icon: Users },
+  { href: "/partners", label: "Amigos", icon: Users },
   { href: "/tecnicas", label: "Técnicas", icon: BookOpen },
   { href: "/blog", label: "Blog", icon: Newspaper },
 ];
@@ -54,7 +53,7 @@ export function AppNav() {
       <aside className="fixed inset-y-0 left-0 z-40 hidden w-70 border-r border-border/80 bg-surface/90 px-4 py-6 backdrop-blur-xl md:flex md:flex-col">
         <Link href="/" className="mb-10 px-3">
           <span className="font-display text-[1.75rem] tracking-tight">
-            MatLink
+            BJJApp
           </span>
           <span className="mt-1 block text-[13px] text-muted">
             Tu vida en el tatami

@@ -2,7 +2,6 @@
 
 import { Button } from "@/components/ui/button";
 import { Input, Label } from "@/components/ui/input";
-import { isSupabaseConfigured } from "@/lib/supabase/config";
 import {
   createDemoProfile,
   signInAsDemo,
@@ -11,34 +10,31 @@ import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 
 export function SignInPanel() {
-  const supabaseReady = isSupabaseConfigured();
   const router = useRouter();
   const [pending, start] = useTransition();
   const [error, setError] = useState<string | null>(null);
-  const [mode, setMode] = useState<"demo" | "create">("demo");
+  const [mode, setMode] = useState<"quick" | "create">("quick");
   const [form, setForm] = useState({
     display_name: "",
     username: "",
-    city: "Caracas",
+    city: "Maracaibo",
   });
 
   return (
     <div className="mx-auto w-full max-w-sm animate-rise-delay-1">
       <div className="rounded-4xl bg-surface p-6 shadow-lift">
-        {mode === "demo" ? (
+        {mode === "quick" ? (
           <div className="space-y-5">
             <div>
-              <p className="text-[13px] font-medium text-muted">
-                {supabaseReady ? "Supabase listo · demo local activa" : "Demo local"}
-              </p>
+              <p className="text-[13px] font-medium text-muted">BJJApp</p>
               <p className="mt-1 font-display text-2xl tracking-tight">
-                Entra y empieza a rolar
+                Entra y entrena con tu gente
               </p>
             </div>
             <div className="rounded-2xl bg-surface-2 p-4">
               <p className="text-sm font-medium">Angelo Castellani</p>
               <p className="mt-0.5 text-sm text-muted">
-                Azul · 2 grados · Superadmin · Caracas
+                Azul · 2 grados · Nueva Era · Maracaibo
               </p>
             </div>
             <Button
@@ -78,7 +74,9 @@ export function SignInPanel() {
           >
             <div>
               <p className="font-display text-2xl tracking-tight">Tu perfil</p>
-              <p className="mt-1 text-sm text-muted">Solo para esta demo local</p>
+              <p className="mt-1 text-sm text-muted">
+                Crea tu cuenta y únete a la comunidad
+              </p>
             </div>
             <div>
               <Label htmlFor="display_name">Nombre</Label>
@@ -124,9 +122,9 @@ export function SignInPanel() {
         <button
           type="button"
           className="mt-5 w-full text-center text-sm text-muted transition hover:text-foreground"
-          onClick={() => setMode(mode === "demo" ? "create" : "demo")}
+          onClick={() => setMode(mode === "quick" ? "create" : "quick")}
         >
-          {mode === "demo" ? "Crear otro perfil" : "Usar perfil demo"}
+          {mode === "quick" ? "Crear otro perfil" : "Usar perfil de Angelo"}
         </button>
       </div>
     </div>

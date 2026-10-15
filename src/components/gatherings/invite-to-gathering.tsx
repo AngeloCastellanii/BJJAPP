@@ -25,7 +25,7 @@ export function InviteToGathering({
     return (
       <SoftPanel className="p-4">
         <p className="text-sm text-muted">
-          No hay personas disponibles para invitar. Ve a Descubrir o Partners.
+          No hay personas disponibles para invitar. Ve a Descubrir o Amigos.
         </p>
       </SoftPanel>
     );

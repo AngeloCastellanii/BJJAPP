@@ -28,7 +28,7 @@ export default async function DescubrirPage() {
       <PageHeader
         eyebrow="Cerca de ti"
         title="Descubrir"
-        description="Atletas para invitaciones de partner y retos."
+        description="Gente de tu zona y otras academias para conocer y entrenar."
       />
       {people.length === 0 ? (
         <EmptyState

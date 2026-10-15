@@ -4,7 +4,7 @@ import { isSupabaseConfigured } from "./config";
 export function createClient() {
   if (!isSupabaseConfigured()) {
     throw new Error(
-      "Supabase no configurado. Usa el modo demo o define NEXT_PUBLIC_SUPABASE_URL y NEXT_PUBLIC_SUPABASE_ANON_KEY.",
+      "Supabase no configurado. Define NEXT_PUBLIC_SUPABASE_URL y NEXT_PUBLIC_SUPABASE_ANON_KEY.",
     );
   }
   return createBrowserClient(

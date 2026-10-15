@@ -18,31 +18,31 @@ const fraunces = Fraunces({
 
 export const metadata: Metadata = {
   title: {
-    default: "MatLink",
-    template: "%s · MatLink",
+    default: "BJJApp",
+    template: "%s · BJJApp",
   },
   description:
-    "Roladas, open mats, peleas, partners y ranking para la comunidad de jiu-jitsu.",
-  applicationName: "MatLink",
+    "Comunidad de jiu-jitsu: amigos, academia, roladas, peleas y ranking.",
+  applicationName: "BJJApp",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "MatLink",
+    title: "BJJApp",
   },
   manifest: "/manifest.webmanifest",
   openGraph: {
-    title: "MatLink",
+    title: "BJJApp",
     description:
-      "Roladas, open mats, peleas, partners y ranking para la comunidad de jiu-jitsu.",
-    siteName: "MatLink",
+      "Comunidad de jiu-jitsu: amigos, academia, roladas, peleas y ranking.",
+    siteName: "BJJApp",
     type: "website",
     locale: "es_VE",
   },
   twitter: {
     card: "summary",
-    title: "MatLink",
+    title: "BJJApp",
     description:
-      "Roladas, open mats, peleas, partners y ranking para la comunidad de jiu-jitsu.",
+      "Comunidad de jiu-jitsu: amigos, academia, roladas, peleas y ranking.",
   },
   icons: {
     icon: [{ url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" }],

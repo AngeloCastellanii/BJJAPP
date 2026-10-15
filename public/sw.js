@@ -1,4 +1,4 @@
-const CACHE = "matlink-v2";
+const CACHE = "bjjapp-v1";
 const ASSETS = ["/", "/manifest.webmanifest", "/icons/icon-192.png"];
 
 self.addEventListener("install", (event) => {
