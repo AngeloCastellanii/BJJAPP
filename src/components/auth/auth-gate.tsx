@@ -36,9 +36,9 @@ export function SignInPanel() {
               </p>
             </div>
             <div className="rounded-2xl bg-surface-2 p-4">
-              <p className="text-sm font-medium">Angelo Ruiz</p>
+              <p className="text-sm font-medium">Angelo Castellani</p>
               <p className="mt-0.5 text-sm text-muted">
-                Azul · 2 grados · Caracas
+                Azul · 2 grados · Superadmin · Caracas
               </p>
             </div>
             <Button

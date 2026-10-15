@@ -2,13 +2,17 @@ import {
   JoinAcademyButton,
   RespondMembershipButton,
 } from "@/components/academies/academy-actions";
+import { AssignRoleForm } from "@/components/academies/assign-role-form";
+import { CreateAcademyForm } from "@/components/academies/create-academy-form";
 import { SignInPanel } from "@/components/auth/auth-gate";
 import { PageHeader } from "@/components/layout/page-header";
 import { AcademyBadge } from "@/components/profile/academy-badge";
 import { SoftPanel } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
+import { canSuperadmin } from "@/lib/roles";
 import {
   listAcademies,
+  listAllProfiles,
   listMyMemberships,
 } from "@/server/repositories/academies";
 import { getSessionProfile } from "@/server/repositories/profiles";
@@ -28,9 +32,11 @@ export default async function EscuelasPage() {
     );
   }
 
-  const [academies, memberships] = await Promise.all([
+  const isAdmin = canSuperadmin(session.role);
+  const [academies, memberships, allProfiles] = await Promise.all([
     listAcademies(),
     listMyMemberships(),
+    isAdmin ? listAllProfiles() : Promise.resolve([]),
   ]);
   const pending = memberships.filter((m) => m.status === "pending");
   const mine = new Set(
@@ -45,7 +51,17 @@ export default async function EscuelasPage() {
         eyebrow="Clanes"
         title="Escuelas"
         description="Únete a un clan, muestra el distintivo y recibe invitaciones a open mats."
+        action={isAdmin ? <CreateAcademyForm /> : undefined}
       />
+
+      {isAdmin ? (
+        <section className="space-y-3">
+          <h2 className="px-1 text-sm font-medium text-muted">
+            Panel superadmin
+          </h2>
+          <AssignRoleForm profiles={allProfiles} academies={academies} />
+        </section>
+      ) : null}
 
       {pending.length > 0 ? (
         <section>

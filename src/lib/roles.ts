@@ -4,7 +4,7 @@ export const ROLE_LABELS: Record<UserRole, string> = {
   user: "Usuario",
   coach: "Entrenador",
   master: "Master",
-  owner: "Dueño",
+  owner: "Dueño / Superadmin",
 };
 
 export const ROLE_RANK: Record<UserRole, number> = {
@@ -40,6 +40,11 @@ export function canPromoteBelts(role: UserRole) {
 
 export function canManageAcademy(role: UserRole) {
   return roleAtLeast(role, "owner");
+}
+
+/** Superadmin de la plataforma: crear gimnasios y asignar roles */
+export function canSuperadmin(role: UserRole) {
+  return role === "owner";
 }
 
 export function gatheringTypeLabel(type: GatheringType) {

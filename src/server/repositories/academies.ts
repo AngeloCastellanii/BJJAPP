@@ -1,8 +1,25 @@
 "use server";
 
-import type { Academy, AcademyMembership, Profile } from "@/lib/types";
+import { avatarFallback } from "@/lib/media";
+import { canSuperadmin } from "@/lib/roles";
+import type {
+  Academy,
+  AcademyMembership,
+  Profile,
+  UserRole,
+} from "@/lib/types";
 import { getStore, uid } from "../mock/store";
 import { getProfile, requireSession, withAcademy } from "./helpers";
+
+function slugify(value: string) {
+  return value
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "")
+    .slice(0, 48);
+}
 
 function enrichAcademy(a: Academy): Academy {
   const store = getStore();
@@ -240,4 +257,146 @@ export async function listInviteableProfiles(
     .filter((p) => !memberIds.has(p.id))
     .map(withAcademy)
     .slice(0, 20);
+}
+
+export async function createAcademy(input: {
+  name: string;
+  city: string;
+  description?: string;
+  badge_label?: string;
+  badge_color?: string;
+  owner_id?: string;
+}): Promise<Academy> {
+  const session = await requireSession();
+  if (!canSuperadmin(session.role)) {
+    throw new Error("Solo el superadmin puede crear gimnasios");
+  }
+
+  const name = input.name.trim();
+  if (!name) throw new Error("El nombre es obligatorio");
+  const city = input.city.trim();
+  if (!city) throw new Error("La ciudad es obligatoria");
+
+  const store = getStore();
+  let slug = slugify(name) || uid("gym");
+  if (store.academies.some((a) => a.slug === slug)) {
+    slug = `${slug}-${uid("x").slice(-4)}`;
+  }
+
+  const ownerId = input.owner_id || session.id;
+  if (!getProfile(ownerId)) throw new Error("Dueño no encontrado");
+
+  const academy: Academy = {
+    id: uid("acad"),
+    name,
+    slug,
+    city,
+    country: "VE",
+    description: input.description?.trim() || null,
+    logo_url: avatarFallback(slug),
+    badge_label: (input.badge_label?.trim() || name.slice(0, 16)) || "Clan",
+    badge_color: input.badge_color?.trim() || "#1f3a5f",
+    owner_id: ownerId,
+    created_at: new Date().toISOString(),
+  };
+
+  store.academies.push(academy);
+
+  const existing = store.memberships.find(
+    (m) => m.academy_id === academy.id && m.profile_id === ownerId,
+  );
+  if (!existing) {
+    store.memberships.push({
+      id: uid("mem"),
+      academy_id: academy.id,
+      profile_id: ownerId,
+      status: "accepted",
+      role_in_academy: "owner",
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    });
+  }
+
+  const pIdx = store.profiles.findIndex((p) => p.id === ownerId);
+  if (pIdx >= 0) {
+    store.profiles[pIdx] = {
+      ...store.profiles[pIdx],
+      academy_id: academy.id,
+      role: "owner",
+      updated_at: new Date().toISOString(),
+    };
+  }
+
+  return enrichAcademy(academy);
+}
+
+export async function assignMemberRole(input: {
+  profile_id: string;
+  role: UserRole;
+  academy_id?: string | null;
+}): Promise<Profile> {
+  const session = await requireSession();
+  if (!canSuperadmin(session.role)) {
+    throw new Error("Solo el superadmin puede asignar roles");
+  }
+
+  const store = getStore();
+  const pIdx = store.profiles.findIndex((p) => p.id === input.profile_id);
+  if (pIdx < 0) throw new Error("Persona no encontrada");
+  if (input.profile_id === session.id && input.role !== "owner") {
+    throw new Error("No puedes quitarte el rol de superadmin");
+  }
+
+  const academyId =
+    input.academy_id === undefined
+      ? store.profiles[pIdx].academy_id
+      : input.academy_id;
+
+  if (academyId) {
+    const academy = store.academies.find((a) => a.id === academyId);
+    if (!academy) throw new Error("Gimnasio no encontrado");
+
+    let membership = store.memberships.find(
+      (m) => m.academy_id === academyId && m.profile_id === input.profile_id,
+    );
+    if (!membership) {
+      membership = {
+        id: uid("mem"),
+        academy_id: academyId,
+        profile_id: input.profile_id,
+        status: "accepted",
+        role_in_academy: input.role,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+      store.memberships.push(membership);
+    } else {
+      membership.status = "accepted";
+      membership.role_in_academy = input.role;
+      membership.updated_at = new Date().toISOString();
+    }
+
+    if (input.role === "owner") {
+      academy.owner_id = input.profile_id;
+    }
+  }
+
+  store.profiles[pIdx] = {
+    ...store.profiles[pIdx],
+    role: input.role,
+    academy_id: academyId,
+    updated_at: new Date().toISOString(),
+  };
+
+  return withAcademy(store.profiles[pIdx]);
+}
+
+export async function listAllProfiles(): Promise<Profile[]> {
+  const session = await requireSession();
+  if (!canSuperadmin(session.role)) {
+    throw new Error("Solo el superadmin puede listar todos los perfiles");
+  }
+  return getStore()
+    .profiles.map(withAcademy)
+    .sort((a, b) => a.display_name.localeCompare(b.display_name));
 }
