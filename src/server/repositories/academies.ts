@@ -147,7 +147,7 @@ export async function respondAcademyInvite(
       // user can accept if they were invited (staff created pending for them) — allow member to accept
     }
   } else if (!isOwnerOrStaff) {
-    throw new Error("Solo staff del clan puede responder");
+    throw new Error("Solo staff de la academia puede responder");
   }
 
   store.memberships[idx] = {
@@ -185,7 +185,7 @@ export async function inviteToAcademy(
       (session.role === "owner" ||
         session.role === "master" ||
         session.role === "coach"));
-  if (!canInvite) throw new Error("No puedes invitar a este clan");
+  if (!canInvite) throw new Error("No puedes invitar a esta academia");
   if (!getProfile(profileId)) throw new Error("Usuario no encontrado");
 
   const existing = store.memberships.find(
@@ -224,7 +224,7 @@ export async function leaveAcademy(academyId: string): Promise<void> {
   );
   if (!membership) throw new Error("No perteneces a esta escuela");
   if (membership.role_in_academy === "owner") {
-    throw new Error("El dueño no puede abandonar el clan");
+    throw new Error("El dueño no puede abandonar la academia");
   }
   membership.status = "cancelled";
   membership.updated_at = new Date().toISOString();
@@ -294,7 +294,7 @@ export async function createAcademy(input: {
     country: "VE",
     description: input.description?.trim() || null,
     logo_url: avatarFallback(slug),
-    badge_label: (input.badge_label?.trim() || name.slice(0, 16)) || "Clan",
+    badge_label: (input.badge_label?.trim() || name.slice(0, 16)) || "Academia",
     badge_color: input.badge_color?.trim() || "#1f3a5f",
     owner_id: ownerId,
     created_at: new Date().toISOString(),

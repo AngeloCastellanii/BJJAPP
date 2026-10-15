@@ -8,6 +8,8 @@ import type {
   Match,
   Partnership,
   Post,
+  PostComment,
+  PostLike,
   Profile,
   Technique,
   TechniqueLog,
@@ -26,7 +28,7 @@ export const academies: Academy[] = [
     slug: "gracie-caracas",
     city: "Caracas",
     country: "VE",
-    description: "Clan principal en Caracas. Gi, no-gi y competencia.",
+    description: "Academia principal en Caracas. Gi, no-gi y competencia.",
     logo_url: avatarFallback("gracie-caracas"),
     badge_label: "Gracie CCS",
     badge_color: "#1f3a5f",
@@ -367,7 +369,7 @@ export const gatherings: Gathering[] = [
     id: "gath-5",
     type: "competition",
     title: "Copa MatLink Caracas",
-    description: "Competencia interna del clan. Gi.",
+    description: "Competencia interna de la academia. Gi.",
     location_name: "Gracie Caracas",
     city: "Caracas",
     starts_at: iso(20 * day + 9 * 60 * 60 * 1000),
@@ -591,6 +593,8 @@ export const posts: Post[] = [
     image_urls: [
       "https://images.unsplash.com/photo-1555597673-b21d5c935865?w=800&q=80",
     ],
+    visibility: "public",
+    academy_id: null,
     published_at: iso(-8 * 60 * 60 * 1000),
     created_at: iso(-8 * 60 * 60 * 1000),
   },
@@ -604,6 +608,8 @@ export const posts: Post[] = [
     image_urls: [
       "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=800&q=80",
     ],
+    visibility: "public",
+    academy_id: null,
     published_at: iso(-1 * day),
     created_at: iso(-1 * day),
   },
@@ -616,6 +622,8 @@ export const posts: Post[] = [
     cover_url:
       "https://images.unsplash.com/photo-1517438476312-10d79c077509?w=1000&q=80",
     image_urls: [],
+    visibility: "public",
+    academy_id: null,
     published_at: iso(-2 * day),
     created_at: iso(-2 * day),
   },
@@ -628,6 +636,8 @@ export const posts: Post[] = [
     cover_url:
       "https://images.unsplash.com/photo-1549060279-7e168fcee0c2?w=1000&q=80",
     image_urls: [],
+    visibility: "public",
+    academy_id: null,
     published_at: iso(-4 * day),
     created_at: iso(-4 * day),
   },
@@ -639,7 +649,41 @@ export const posts: Post[] = [
     body: "Busco partners cerca de Caracas para roladas entre semana.",
     cover_url: null,
     image_urls: [],
+    visibility: "friends",
+    academy_id: null,
     published_at: iso(-3 * day),
     created_at: iso(-3 * day),
+  },
+];
+
+export const postLikes: PostLike[] = [
+  {
+    id: "like-1",
+    post_id: "post-1",
+    profile_id: DEMO_USER_ID,
+    created_at: iso(-7 * 60 * 60 * 1000),
+  },
+  {
+    id: "like-2",
+    post_id: "post-2",
+    profile_id: "user-2",
+    created_at: iso(-20 * 60 * 60 * 1000),
+  },
+];
+
+export const postComments: PostComment[] = [
+  {
+    id: "cmt-1",
+    post_id: "post-1",
+    author_id: DEMO_USER_ID,
+    body: "Ese passing se veía sólido. ¿Guardia o half?",
+    created_at: iso(-6 * 60 * 60 * 1000),
+  },
+  {
+    id: "cmt-2",
+    post_id: "post-2",
+    author_id: "user-5",
+    body: "Buen focus. Knee cut + montada es un combo letal.",
+    created_at: iso(-18 * 60 * 60 * 1000),
   },
 ];

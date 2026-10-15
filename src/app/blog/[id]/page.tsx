@@ -44,7 +44,7 @@ export default async function BlogArticlePage({
         </div>
       </header>
       {cover ? (
-        <div className="relative aspect-[16/9] overflow-hidden rounded-3xl">
+        <div className="relative aspect-video overflow-hidden rounded-3xl">
           <Image
             src={cover}
             alt=""

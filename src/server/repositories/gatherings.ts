@@ -64,7 +64,7 @@ export async function createGathering(input: {
   starts_at: string;
   ends_at?: string;
   capacity?: number;
-  invite_clan?: boolean;
+  invite_academy?: boolean;
 }): Promise<Gathering> {
   const session = await requireSession();
   if (!canOrganizeType(session.role, input.type)) {
@@ -97,14 +97,14 @@ export async function createGathering(input: {
     created_at: new Date().toISOString(),
   });
 
-  if (input.invite_clan && session.academy_id) {
-    await inviteClanToGathering(gathering.id, session.academy_id);
+  if (input.invite_academy && session.academy_id) {
+    await inviteAcademyToGathering(gathering.id, session.academy_id);
   }
 
   return enrich(gathering);
 }
 
-export async function inviteClanToGathering(
+export async function inviteAcademyToGathering(
   gatheringId: string,
   academyId: string,
 ): Promise<number> {
@@ -113,7 +113,7 @@ export async function inviteClanToGathering(
   const gathering = store.gatherings.find((g) => g.id === gatheringId);
   if (!gathering) throw new Error("Encuentro no encontrado");
   if (gathering.host_id !== session.id) {
-    throw new Error("Solo el anfitrión puede invitar al clan");
+    throw new Error("Solo el anfitrión puede invitar a la academia");
   }
 
   const members = store.memberships.filter(

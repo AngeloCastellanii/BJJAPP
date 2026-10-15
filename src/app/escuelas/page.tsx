@@ -48,9 +48,9 @@ export default async function EscuelasPage() {
   return (
     <div className="space-y-8">
       <PageHeader
-        eyebrow="Clanes"
+        eyebrow="Academias"
         title="Escuelas"
-        description="Únete a un clan, muestra el distintivo y recibe invitaciones a open mats."
+        description="Únete a una academia, muestra el distintivo y recibe invitaciones a open mats."
         action={isAdmin ? <CreateAcademyForm /> : undefined}
       />
 

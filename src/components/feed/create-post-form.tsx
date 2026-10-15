@@ -6,17 +6,26 @@ import { SoftPanel } from "@/components/ui/card";
 import { Input, Textarea } from "@/components/ui/input";
 import { Segmented } from "@/components/ui/segmented";
 import { fileToDataUrl } from "@/lib/media";
+import type { PostVisibility } from "@/lib/types";
 import { createPost } from "@/server/repositories/posts";
 import { ImagePlus, X } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
+
+const VISIBILITY_OPTIONS: { value: PostVisibility; label: string }[] = [
+  { value: "public", label: "Público" },
+  { value: "friends", label: "Amigos" },
+  { value: "academy", label: "Academia" },
+];
 
 export function CreatePostForm({
   authorName,
   authorAvatar,
+  hasAcademy = false,
 }: {
   authorName: string;
   authorAvatar?: string | null;
+  hasAcademy?: boolean;
 }) {
   const router = useRouter();
   const [pending, start] = useTransition();
@@ -25,12 +34,16 @@ export function CreatePostForm({
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [images, setImages] = useState<string[]>([]);
+  const imagesRef = useRef<string[]>([]);
+  const [visibility, setVisibility] = useState<PostVisibility>("public");
   const [error, setError] = useState<string | null>(null);
 
   const reset = () => {
     setBody("");
     setTitle("");
     setImages([]);
+    imagesRef.current = [];
+    setVisibility("public");
     setExpanded(false);
   };
 
@@ -56,14 +69,16 @@ export function CreatePostForm({
           onSubmit={(e) => {
             e.preventDefault();
             setError(null);
+            const snapshot = [...imagesRef.current];
             start(async () => {
               try {
                 await createPost({
                   type,
                   title,
                   body,
-                  image_urls: images,
-                  cover_url: type === "article" ? images[0] : null,
+                  image_urls: snapshot,
+                  cover_url: type === "article" ? snapshot[0] : null,
+                  visibility,
                 });
                 reset();
                 router.refresh();
@@ -108,6 +123,25 @@ export function CreatePostForm({
             className="min-h-24 border-0 bg-transparent px-0 shadow-none focus:bg-transparent focus:shadow-none"
           />
 
+          <div className="flex flex-wrap gap-1.5">
+            {VISIBILITY_OPTIONS.filter(
+              (o) => o.value !== "academy" || hasAcademy,
+            ).map((o) => (
+              <button
+                key={o.value}
+                type="button"
+                onClick={() => setVisibility(o.value)}
+                className={
+                  visibility === o.value
+                    ? "rounded-xl bg-accent-soft px-3 py-1.5 text-xs font-medium text-foreground"
+                    : "rounded-xl px-3 py-1.5 text-xs font-medium text-muted hover:bg-surface-2 hover:text-foreground"
+                }
+              >
+                {o.label}
+              </button>
+            ))}
+          </div>
+
           {images.length > 0 ? (
             <div className="grid grid-cols-2 gap-2">
               {images.map((src, i) => (
@@ -124,9 +158,11 @@ export function CreatePostForm({
                   <button
                     type="button"
                     className="absolute right-2 top-2 rounded-full bg-foreground/70 p-1 text-accent-fg"
-                    onClick={() =>
-                      setImages((prev) => prev.filter((_, idx) => idx !== i))
-                    }
+                    onClick={() => {
+                      const next = imagesRef.current.filter((_, idx) => idx !== i);
+                      imagesRef.current = next;
+                      setImages(next);
+                    }}
                   >
                     <X className="h-3.5 w-3.5" />
                   </button>
@@ -151,7 +187,9 @@ export function CreatePostForm({
                   start(async () => {
                     try {
                       const url = await fileToDataUrl(file, 1000, 0.8);
-                      setImages((prev) => [...prev, url].slice(0, 4));
+                      const next = [...imagesRef.current, url].slice(0, 4);
+                      imagesRef.current = next;
+                      setImages(next);
                     } catch (err) {
                       setError(err instanceof Error ? err.message : "Error");
                     }

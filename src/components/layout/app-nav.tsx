@@ -113,13 +113,13 @@ export function AppNav() {
         <button
           type="button"
           aria-label="Cerrar menú"
-          className="fixed inset-0 z-40 bg-foreground/20 backdrop-blur-[2px] md:hidden"
+          className="fixed inset-0 z-45 bg-foreground/20 backdrop-blur-[2px] md:hidden"
           onClick={() => setMoreOpen(false)}
         />
       ) : null}
 
       {moreOpen ? (
-        <div className="fixed inset-x-0 bottom -[5.5rem] z-50 px-3 md:hidden">
+        <div className="fixed inset-x-0 bottom-23 z-50 px-3 md:hidden">
           <div className="mx-auto max-w-xl rounded-4xl border border-border/80 bg-surface p-3 shadow-lift">
             <div className="mb-2 flex items-center justify-between px-2">
               <p className="text-sm font-medium">Más módulos</p>

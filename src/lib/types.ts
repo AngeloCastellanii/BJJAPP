@@ -26,6 +26,7 @@ export type MatchStatus =
   | "cancelled"
   | "completed";
 export type PostType = "post" | "article";
+export type PostVisibility = "public" | "friends" | "academy";
 export type ParticipantStatus = "invited" | "joined" | "declined" | "cancelled";
 export type MembershipStatus = "pending" | "accepted" | "rejected" | "cancelled";
 
@@ -175,7 +176,30 @@ export interface Post {
   body: string;
   cover_url: string | null;
   image_urls: string[];
+  visibility: PostVisibility;
+  academy_id: string | null;
   published_at: string;
+  created_at: string;
+  author?: Profile;
+  academy?: Academy | null;
+  like_count?: number;
+  comment_count?: number;
+  liked_by_me?: boolean;
+}
+
+export interface PostLike {
+  id: string;
+  post_id: string;
+  profile_id: string;
+  created_at: string;
+  profile?: Profile;
+}
+
+export interface PostComment {
+  id: string;
+  post_id: string;
+  author_id: string;
+  body: string;
   created_at: string;
   author?: Profile;
 }

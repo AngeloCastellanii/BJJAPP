@@ -7,6 +7,8 @@ import type {
   Match,
   Partnership,
   Post,
+  PostComment,
+  PostLike,
   Profile,
   Technique,
   TechniqueLog,
@@ -19,6 +21,8 @@ import {
   matches as seedMatches,
   memberships as seedMemberships,
   partnerships as seedPartnerships,
+  postComments as seedComments,
+  postLikes as seedLikes,
   posts as seedPosts,
   profiles as seedProfiles,
   techniqueLogs as seedLogs,
@@ -37,6 +41,8 @@ export interface MockStore {
   techniques: Technique[];
   techniqueLogs: TechniqueLog[];
   posts: Post[];
+  postLikes: PostLike[];
+  postComments: PostComment[];
   sessionUserId: string | null;
 }
 
@@ -45,7 +51,7 @@ declare global {
   var __bjjMockStoreVersion: number | undefined;
 }
 
-const STORE_VERSION = 4;
+const STORE_VERSION = 6;
 
 function cloneStore(): MockStore {
   return {
@@ -60,6 +66,8 @@ function cloneStore(): MockStore {
     techniques: structuredClone(seedTechniques),
     techniqueLogs: structuredClone(seedLogs),
     posts: structuredClone(seedPosts),
+    postLikes: structuredClone(seedLikes),
+    postComments: structuredClone(seedComments),
     sessionUserId: null,
   };
 }

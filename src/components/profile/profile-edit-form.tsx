@@ -1,11 +1,11 @@
 "use client";
 
 import { Avatar } from "@/components/profile/avatar";
+import { AvatarCatalog } from "@/components/profile/avatar-catalog";
 import { Button } from "@/components/ui/button";
 import { SoftPanel } from "@/components/ui/card";
 import { Input, Label, Select, Textarea } from "@/components/ui/input";
 import { BELTS, BELT_LABELS } from "@/lib/belts";
-import { fileToDataUrl } from "@/lib/media";
 import type { Academy, Belt, Profile } from "@/lib/types";
 import { updateProfile } from "@/server/repositories/profiles";
 import { useRouter } from "next/navigation";
@@ -72,34 +72,25 @@ export function ProfileEditForm({
           </Button>
         </div>
 
-        <div className="flex items-center gap-4">
-          <Avatar
-            name={profile.display_name}
-            src={avatarUrl}
-            size="lg"
-          />
-          <div>
-            <Label htmlFor="avatar">Foto de perfil</Label>
-            <Input
-              id="avatar"
-              type="file"
-              accept="image/*"
-              className="mt-1"
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (!file) return;
-                setError(null);
-                start(async () => {
-                  try {
-                    const url = await fileToDataUrl(file, 480, 0.85);
-                    setAvatarUrl(url);
-                  } catch (err) {
-                    setError(err instanceof Error ? err.message : "Error");
-                  }
-                });
-              }}
+        <div className="space-y-2">
+          <div className="flex items-center gap-4">
+            <Avatar
+              name={profile.display_name}
+              src={avatarUrl}
+              size="lg"
             />
+            <div>
+              <Label>Avatar</Label>
+              <p className="mt-1 text-xs text-muted">
+                Solo catálogo DiceBear (sin subir foto)
+              </p>
+            </div>
           </div>
+          <AvatarCatalog
+            value={avatarUrl}
+            onChange={setAvatarUrl}
+            preferredSeed={profile.username}
+          />
         </div>
 
         <div className="grid gap-3 sm:grid-cols-2">
@@ -157,13 +148,13 @@ export function ProfileEditForm({
           </div>
         </div>
         <div>
-          <Label htmlFor="academy_id">Escuela / clan</Label>
+          <Label htmlFor="academy_id">Academia</Label>
           <Select
             id="academy_id"
             name="academy_id"
             defaultValue={profile.academy_id ?? ""}
           >
-            <option value="">Sin escuela</option>
+            <option value="">Sin academia</option>
             {academies.map((a) => (
               <option key={a.id} value={a.id}>
                 {a.name} · {a.city}

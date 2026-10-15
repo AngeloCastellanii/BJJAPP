@@ -1,7 +1,6 @@
 import { SignInPanel } from "@/components/auth/auth-gate";
 import { CreatePostForm } from "@/components/feed/create-post-form";
 import { PostCard } from "@/components/feed/post-card";
-import { QuickActions } from "@/components/home/quick-actions";
 import { SoftPanel } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { listFeed } from "@/server/repositories/posts";
@@ -56,10 +55,10 @@ export default async function HomePage() {
         </Link>
       </header>
 
-      <QuickActions />
       <CreatePostForm
         authorName={session.display_name}
         authorAvatar={session.avatar_url}
+        hasAcademy={Boolean(session.academy_id)}
       />
 
       <section className="animate-rise-delay-2">

@@ -59,7 +59,7 @@ export default async function EscuelaDetailPage({
 
   return (
     <div className="animate-rise space-y-6">
-      <PageHeader eyebrow="Clan" title={academy.name} />
+      <PageHeader eyebrow="Academia" title={academy.name} />
 
       <SoftPanel className="overflow-hidden">
         <div className="flex items-start gap-4 p-5">
@@ -95,7 +95,7 @@ export default async function EscuelaDetailPage({
       {isStaff ? (
         <section className="space-y-3">
           <h2 className="px-1 text-sm font-medium text-muted">
-            Organizar desde el clan
+            Organizar desde la academia
           </h2>
           <CreateGatheringForm
             defaultType="open_mat"
@@ -108,7 +108,7 @@ export default async function EscuelaDetailPage({
       {isStaff ? (
         <section className="space-y-3">
           <h2 className="px-1 text-sm font-medium text-muted">
-            Invitar al clan
+            Invitar a la academia
           </h2>
           <SoftPanel className="p-4">
             <InviteAcademyMember

@@ -120,7 +120,7 @@ export function LeaveAcademyButton({ academyId }: { academyId: string }) {
           });
         }}
       >
-        Abandonar clan
+        Abandonar academia
       </Button>
       {error ? <p className="mt-1 text-xs text-danger">{error}</p> : null}
     </div>
@@ -171,7 +171,7 @@ export function InviteAcademyMember({
           });
         }}
       >
-        Invitar al clan
+        Invitar a la academia
       </Button>
       {error ? <p className="text-xs text-danger">{error}</p> : null}
     </div>

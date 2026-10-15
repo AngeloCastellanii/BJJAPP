@@ -29,7 +29,7 @@ export default async function EventosPage() {
       <PageHeader
         eyebrow="Agenda"
         title="Eventos"
-        description="Seminarios, eventos y encuentros del clan."
+        description="Seminarios, eventos y encuentros de la academia."
         action={<CreateGatheringForm defaultType="event" role={session.role} hasAcademy={Boolean(session.academy_id)} />}
       />
       {upcoming.length === 0 ? (

@@ -77,7 +77,7 @@ export function CreateGatheringForm({
                 city: String(fd.get("city") || ""),
                 starts_at: new Date(String(fd.get("starts_at"))).toISOString(),
                 capacity: Number(fd.get("capacity") || 0) || undefined,
-                invite_clan: fd.get("invite_clan") === "on",
+                invite_academy: fd.get("invite_academy") === "on",
               });
               setOpen(false);
               router.push(`${gatheringPath(g.type)}/${g.id}`);
@@ -168,10 +168,10 @@ export function CreateGatheringForm({
           <label className="flex items-center gap-2 text-sm text-muted">
             <input
               type="checkbox"
-              name="invite_clan"
+              name="invite_academy"
               className="rounded border-border"
             />
-            Invitar a todo el clan / escuela
+            Invitar a toda la academia
           </label>
         ) : null}
         {error ? <p className="text-sm text-danger">{error}</p> : null}
