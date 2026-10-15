@@ -3,6 +3,7 @@ import {
   LeaveAcademyButton,
   RespondMembershipButton,
 } from "@/components/academies/academy-actions";
+import { AcademyBadgeEditor } from "@/components/academies/academy-badge-editor";
 import { SignInPanel } from "@/components/auth/auth-gate";
 import { CreateGatheringForm } from "@/components/gatherings/create-gathering-form";
 import { PageHeader } from "@/components/layout/page-header";
@@ -10,7 +11,7 @@ import { AcademyBadge } from "@/components/profile/academy-badge";
 import { Avatar } from "@/components/profile/avatar";
 import { RoleBadge } from "@/components/profile/role-badge";
 import { SoftPanel } from "@/components/ui/card";
-import { ROLE_LABELS, roleAtLeast } from "@/lib/roles";
+import { ROLE_LABELS, canSuperadmin, roleAtLeast } from "@/lib/roles";
 import {
   getAcademyById,
   listAcademyMembers,
@@ -83,7 +84,15 @@ export default async function EscuelaDetailPage({
             <p className="text-[15px] leading-relaxed text-foreground/90">
               {academy.description || "Sin descripción."}
             </p>
-            <div className="flex flex-wrap gap-2 pt-1">
+            <div className="flex flex-wrap items-center gap-2 pt-1">
+              {academy.owner_id === session.id ||
+              canSuperadmin(session.role) ? (
+                <AcademyBadgeEditor
+                  academyId={academy.id}
+                  badgeLabel={academy.badge_label}
+                  badgeColor={academy.badge_color}
+                />
+              ) : null}
               {isMember && myMembership?.role_in_academy !== "owner" ? (
                 <LeaveAcademyButton academyId={academy.id} />
               ) : null}

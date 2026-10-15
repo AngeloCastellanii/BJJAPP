@@ -36,13 +36,15 @@ export default async function HomePage() {
   }
 
   const feed = await listFeed();
-  const firstName = session.display_name.split(" ")[0];
+  const firstName = session.display_name.trim().split(" ")[0];
 
   return (
     <div className="space-y-5">
       <header className="animate-rise flex items-end justify-between gap-4 pt-1">
         <div>
-          <p className="text-[13px] text-muted">Hola, {firstName}</p>
+          <p className="text-[13px] text-muted">
+            {firstName ? `Hola, ${firstName}` : "Hola"}
+          </p>
           <h1 className="font-display text-[2rem] leading-none tracking-tight">
             Hoy en el mat
           </h1>

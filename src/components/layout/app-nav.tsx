@@ -158,73 +158,60 @@ export function AppNav() {
       ) : null}
 
       <nav className="fixed inset-x-0 bottom-0 z-40 px-3 pb-safe md:hidden">
-        <div className="mx-auto mb-2 max-w-xl rounded-4xl border border-border/80 bg-surface/90 px-2 py-2 shadow-lift backdrop-blur-xl">
-          <ul className="grid grid-cols-5">
-            {items.slice(0, 3).map((item) => {
+        <div className="mx-auto mb-2 max-w-xl rounded-3xl border border-border/80 bg-surface/95 px-1.5 py-1.5 shadow-lift backdrop-blur-xl">
+          <ul className="grid grid-cols-5 gap-0.5">
+            {[
+              ...items.slice(0, 3).map((item) => ({ kind: "link" as const, item })),
+              { kind: "more" as const },
+              ...items.slice(3).map((item) => ({ kind: "link" as const, item })),
+            ].map((entry) => {
+              if (entry.kind === "more") {
+                const active = moreOpen || moreActive;
+                return (
+                  <li key="more" className="min-w-0">
+                    <button
+                      type="button"
+                      onClick={() => setMoreOpen((v) => !v)}
+                      className={cn(
+                        "flex h-12 w-full flex-col items-center justify-center gap-0.5 rounded-2xl text-[10px] font-medium leading-none transition",
+                        active
+                          ? "bg-accent-soft text-foreground"
+                          : "text-muted",
+                      )}
+                    >
+                      <Menu
+                        className="size-5 shrink-0"
+                        strokeWidth={active ? 2.1 : 1.75}
+                      />
+                      <span>Más</span>
+                    </button>
+                  </li>
+                );
+              }
+
+              const { item } = entry;
               const active =
                 item.href === "/"
                   ? pathname === "/"
                   : pathname.startsWith(item.href);
               const Icon = item.icon;
               return (
-                <li key={item.href}>
+                <li key={item.href} className="min-w-0">
                   <Link
                     href={item.href}
                     onClick={closeMore}
                     className={cn(
-                      "flex h-14 flex-col items-center justify-center gap-1 rounded-2xl text-[10px] font-medium transition",
+                      "flex h-12 w-full flex-col items-center justify-center gap-0.5 rounded-2xl text-[10px] font-medium leading-none transition",
                       active
                         ? "bg-accent-soft text-foreground"
                         : "text-muted",
                     )}
                   >
                     <Icon
-                      className="h-5 w-5"
-                      strokeWidth={active ? 2.25 : 1.75}
+                      className="size-5 shrink-0"
+                      strokeWidth={active ? 2.1 : 1.75}
                     />
-                    {item.label}
-                  </Link>
-                </li>
-              );
-            })}
-            <li>
-              <button
-                type="button"
-                onClick={() => setMoreOpen((v) => !v)}
-                className={cn(
-                  "flex h-14 w-full flex-col items-center justify-center gap-1 rounded-2xl text-[10px] font-medium transition",
-                  moreOpen || moreActive
-                    ? "bg-accent-soft text-foreground"
-                    : "text-muted",
-                )}
-              >
-                <Menu
-                  className="h-5 w-5"
-                  strokeWidth={moreOpen || moreActive ? 2.25 : 1.75}
-                />
-                Más
-              </button>
-            </li>
-            {items.slice(3).map((item) => {
-              const active = pathname.startsWith(item.href);
-              const Icon = item.icon;
-              return (
-                <li key={item.href}>
-                  <Link
-                    href={item.href}
-                    onClick={closeMore}
-                    className={cn(
-                      "flex h-14 flex-col items-center justify-center gap-1 rounded-2xl text-[10px] font-medium transition",
-                      active
-                        ? "bg-accent-soft text-foreground"
-                        : "text-muted",
-                    )}
-                  >
-                    <Icon
-                      className="h-5 w-5"
-                      strokeWidth={active ? 2.25 : 1.75}
-                    />
-                    {item.label}
+                    <span>{item.label}</span>
                   </Link>
                 </li>
               );

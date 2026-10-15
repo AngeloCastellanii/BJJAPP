@@ -38,7 +38,7 @@ export function CreateAcademyForm() {
                 city: String(fd.get("city") || ""),
                 description: String(fd.get("description") || ""),
                 badge_label: String(fd.get("badge_label") || ""),
-                badge_color: String(fd.get("badge_color") || "#1f3a5f"),
+                badge_color: String(fd.get("badge_color") || "#161616"),
               });
               setOpen(false);
               router.push(`/escuelas/${academy.slug}`);
@@ -84,7 +84,7 @@ export function CreateAcademyForm() {
             id="badge_color"
             name="badge_color"
             type="color"
-            defaultValue="#14532d"
+            defaultValue="#161616"
             className="h-12 max-w-28 p-1"
           />
         </div>

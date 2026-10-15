@@ -61,6 +61,7 @@ export interface Profile {
   id: string;
   username: string;
   display_name: string;
+  email: string | null;
   bio: string | null;
   avatar_url: string | null;
   city: string;
@@ -74,6 +75,7 @@ export interface Profile {
   belt_verified_at: string | null;
   role: UserRole;
   academy_id: string | null;
+  onboarding_completed: boolean;
   academy?: Academy | null;
   created_at: string;
   updated_at: string;

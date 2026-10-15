@@ -51,7 +51,7 @@ declare global {
   var __bjjMockStoreVersion: number | undefined;
 }
 
-const STORE_VERSION = 8;
+const STORE_VERSION = 9;
 
 function cloneStore(): MockStore {
   return {

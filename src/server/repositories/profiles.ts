@@ -1,5 +1,6 @@
 "use server";
 
+import { getAuthCredentials } from "@/lib/auth-config";
 import { haversineKm } from "@/lib/format";
 import { avatarFallback } from "@/lib/media";
 import type { Belt, Profile } from "@/lib/types";
@@ -20,13 +21,136 @@ export async function getSessionProfile(): Promise<Profile | null> {
   return getProfile(store.sessionUserId);
 }
 
-export async function signInAsDemo(): Promise<Profile> {
+export async function signInWithPassword(
+  email: string,
+  password: string,
+): Promise<Profile> {
+  const creds = getAuthCredentials();
+  if (!creds.configured) {
+    throw new Error("Auth no configurada. Define BJJAPP_AUTH_EMAIL y BJJAPP_AUTH_PASSWORD.");
+  }
+
+  const normalized = email.trim().toLowerCase();
+  if (normalized !== creds.email || password !== creds.password) {
+    throw new Error("Correo o contraseña incorrectos");
+  }
+
   const store = getStore();
-  store.sessionUserId = DEMO_USER_ID;
-  await writeSessionCookie(DEMO_USER_ID);
-  const profile = getProfile(DEMO_USER_ID);
-  if (!profile) throw new Error("Usuario no disponible");
-  return profile;
+  let profile = store.profiles.find(
+    (p) => p.id === DEMO_USER_ID || p.email?.toLowerCase() === normalized,
+  );
+
+  if (!profile) {
+    profile = {
+      id: DEMO_USER_ID,
+      username: "pending",
+      display_name: "",
+      email: normalized,
+      bio: null,
+      avatar_url: null,
+      city: "",
+      country: "VE",
+      lat: null,
+      lng: null,
+      belt: "white",
+      stripes: 0,
+      belt_verified: false,
+      belt_verified_by: null,
+      belt_verified_at: null,
+      role: "owner",
+      academy_id: null,
+      onboarding_completed: false,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+    store.profiles.unshift(profile);
+  } else {
+    const idx = store.profiles.findIndex((p) => p.id === profile!.id);
+    store.profiles[idx] = {
+      ...store.profiles[idx],
+      email: normalized,
+      updated_at: new Date().toISOString(),
+    };
+    profile = store.profiles[idx];
+  }
+
+  store.sessionUserId = profile.id;
+  await writeSessionCookie(profile.id);
+  return withAcademy(profile);
+}
+
+export async function completeOnboarding(input: {
+  display_name: string;
+  username: string;
+  city: string;
+  belt: Belt;
+  stripes: number;
+  academy_id: string | null;
+  avatar_url?: string | null;
+  bio?: string;
+}): Promise<Profile> {
+  const session = await requireSession();
+  const store = getStore();
+  const idx = store.profiles.findIndex((p) => p.id === session.id);
+  if (idx < 0) throw new Error("Perfil no encontrado");
+
+  const display_name = input.display_name.trim();
+  const username = input.username.trim().toLowerCase().replace(/\s+/g, ".");
+  const city = input.city.trim();
+
+  if (!display_name) throw new Error("El nombre es obligatorio");
+  if (!username || username.length < 3) {
+    throw new Error("El usuario debe tener al menos 3 caracteres");
+  }
+  if (!city) throw new Error("La ciudad es obligatoria");
+
+  const taken = store.profiles.some(
+    (p) => p.id !== session.id && p.username.toLowerCase() === username,
+  );
+  if (taken) throw new Error("Ese usuario ya existe");
+
+  if (input.academy_id) {
+    const academy = store.academies.find((a) => a.id === input.academy_id);
+    if (!academy) throw new Error("Academia no encontrada");
+  }
+
+  const stripes = Math.min(4, Math.max(0, Number(input.stripes) || 0));
+
+  store.profiles[idx] = {
+    ...store.profiles[idx],
+    display_name,
+    username,
+    city,
+    belt: input.belt,
+    stripes,
+    academy_id: input.academy_id,
+    avatar_url: input.avatar_url?.trim() || avatarFallback(username),
+    bio: input.bio?.trim() || null,
+    onboarding_completed: true,
+    updated_at: new Date().toISOString(),
+  };
+
+  if (input.academy_id) {
+    const memIdx = store.memberships.findIndex(
+      (m) =>
+        m.profile_id === session.id &&
+        m.academy_id === input.academy_id &&
+        m.status === "accepted",
+    );
+    if (memIdx < 0) {
+      store.memberships.push({
+        id: uid("mem"),
+        academy_id: input.academy_id,
+        profile_id: session.id,
+        status: "accepted",
+        role_in_academy: store.profiles[idx].role,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      });
+    }
+  }
+
+  return withAcademy(store.profiles[idx]);
 }
 
 export async function signOut(): Promise<void> {
@@ -111,7 +235,13 @@ export async function discoverNearby(limit = 20): Promise<
   );
 
   return store.profiles
-    .filter((p) => p.id !== session.id && !partnerIds.has(p.id))
+    .filter(
+      (p) =>
+        p.id !== session.id &&
+        !partnerIds.has(p.id) &&
+        p.onboarding_completed &&
+        p.username !== "pending",
+    )
     .map((p) => {
       let distance_km: number | null = null;
       if (
@@ -131,42 +261,4 @@ export async function discoverNearby(limit = 20): Promise<
       return a.distance_km - b.distance_km;
     })
     .slice(0, limit);
-}
-
-export async function createDemoProfile(input: {
-  display_name: string;
-  username: string;
-  city: string;
-}): Promise<Profile> {
-  const store = getStore();
-  const username = input.username.trim().toLowerCase();
-  if (store.profiles.some((p) => p.username === username)) {
-    throw new Error("Ese usuario ya existe");
-  }
-
-  const profile: Profile = {
-    id: uid("user"),
-    username,
-    display_name: input.display_name.trim(),
-    bio: null,
-    avatar_url: avatarFallback(username),
-    city: input.city.trim(),
-    country: "VE",
-    lat: 10.48,
-    lng: -66.9,
-    belt: "white",
-    stripes: 0,
-    belt_verified: false,
-    belt_verified_by: null,
-    belt_verified_at: null,
-    role: "user",
-    academy_id: null,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  };
-
-  store.profiles.push(profile);
-  store.sessionUserId = profile.id;
-  await writeSessionCookie(profile.id);
-  return withAcademy(profile);
 }

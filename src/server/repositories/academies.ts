@@ -295,7 +295,7 @@ export async function createAcademy(input: {
     description: input.description?.trim() || null,
     logo_url: avatarFallback(slug),
     badge_label: (input.badge_label?.trim() || name.slice(0, 16)) || "Academia",
-    badge_color: input.badge_color?.trim() || "#1f3a5f",
+    badge_color: input.badge_color?.trim() || "#161616",
     owner_id: ownerId,
     created_at: new Date().toISOString(),
   };
@@ -389,6 +389,30 @@ export async function assignMemberRole(input: {
   };
 
   return withAcademy(store.profiles[pIdx]);
+}
+
+export async function updateAcademyAppearance(input: {
+  academy_id: string;
+  badge_label?: string;
+  badge_color?: string;
+}): Promise<Academy> {
+  const session = await requireSession();
+  const store = getStore();
+  const idx = store.academies.findIndex((a) => a.id === input.academy_id);
+  if (idx < 0) throw new Error("Academia no encontrada");
+
+  const academy = store.academies[idx];
+  const isOwner = academy.owner_id === session.id;
+  if (!isOwner && !canSuperadmin(session.role)) {
+    throw new Error("Solo el dueño puede editar el distintivo");
+  }
+
+  store.academies[idx] = {
+    ...academy,
+    badge_label: input.badge_label?.trim() || academy.badge_label,
+    badge_color: input.badge_color?.trim() || academy.badge_color,
+  };
+  return enrichAcademy(store.academies[idx]);
 }
 
 export async function listAllProfiles(): Promise<Profile[]> {
