@@ -24,15 +24,18 @@ export async function getSessionProfile(): Promise<Profile | null> {
 export async function signInWithPassword(
   email: string,
   password: string,
-): Promise<Profile> {
+): Promise<{ ok: true; profile: Profile } | { ok: false; error: string }> {
   const creds = getAuthCredentials();
   if (!creds.configured) {
-    throw new Error("Auth no configurada. Define BJJAPP_AUTH_EMAIL y BJJAPP_AUTH_PASSWORD.");
+    return {
+      ok: false,
+      error: "El acceso no está configurado en el servidor.",
+    };
   }
 
   const normalized = email.trim().toLowerCase();
   if (normalized !== creds.email || password !== creds.password) {
-    throw new Error("Correo o contraseña incorrectos");
+    return { ok: false, error: "Correo o contraseña incorrectos" };
   }
 
   const store = getStore();
@@ -76,7 +79,7 @@ export async function signInWithPassword(
 
   store.sessionUserId = profile.id;
   await writeSessionCookie(profile.id);
-  return withAcademy(profile);
+  return { ok: true, profile: withAcademy(profile) };
 }
 
 export async function completeOnboarding(input: {
